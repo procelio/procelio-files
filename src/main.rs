@@ -26,7 +26,7 @@ fn statbin(mut args: std::env::Args) {
     let source = std::path::Path::new(&arg);
     let dst = args.next();
     let destination = match dst {
-        None => source.with_extension(".stat"),
+        None => source.with_extension("stat"),
         Some(e) => std::path::PathBuf::from(e)
     };
 
