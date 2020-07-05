@@ -2,20 +2,21 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
+use serde::ser::{Serializer, SerializeMap};
 
-static MAGIC_NUMBER: u32 = 0x1EF1A757;
-static CURRENT_VERSION: u32 = 2;
+pub const STATFILE_MAGIC_NUMBER: u32 = 0x1EF1A757;
+const CURRENT_VERSION: u32 = 2;
 
-pub static HEALTH_FLAG: u8 = 0;
-pub static MASS_FLAG: u8 = 1;
-pub static COST_FLAG: u8 = 2;
-pub static RANKING_FLAG: u8 = 3;
-pub static COMPLEXITY_FLAG: u8 = 4;
-pub static THRUST_FLAG: u8 = 5;
-pub static ROTATION_FLAG: u8 = 6;
-pub static DAMAGE_FLAG: u8 = 7;
+pub const HEALTH_FLAG: u8 = 0;
+pub const MASS_FLAG: u8 = 1;
+pub const COST_FLAG: u8 = 2;
+pub const RANKING_FLAG: u8 = 3;
+pub const COMPLEXITY_FLAG: u8 = 4;
+pub const THRUST_FLAG: u8 = 5;
+pub const ROTATION_FLAG: u8 = 6;
+pub const DAMAGE_FLAG: u8 = 7;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct StatsFile {
     pub blocks: FlagStats,
     pub attacks: FlagStats,
@@ -24,6 +25,28 @@ pub struct StatsFile {
 #[derive(Clone)]
 pub struct FlagStats {
     pub data: HashMap<u32, HashMap<u8, i32>>,
+}
+
+impl Serialize for FlagStats {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut m2 = std::collections::BTreeMap::new();
+        for (k, v) in &self.data {
+            let mut mm = HashMap::new();
+            for (k2, v2) in v {
+                mm.insert(flag_name(*k2), v2);
+            }
+            m2.insert(k, mm);
+        }
+
+        let mut map = serializer.serialize_map(Some(m2.len()))?;
+        for (k, v) in &m2 {  
+            map.serialize_entry(&k.to_string(), &v)?;
+        }
+        map.end()
+    }
 }
 
 impl FlagStats {
@@ -37,13 +60,14 @@ impl FlagStats {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonStatsFile {
     #[serde(rename = "blocks")]
-    pub blocks: HashMap<u32, JsonBlockStats>,
+    pub blocks: Vec<JsonBlockStats>,
     #[serde(rename = "attacks")]
-    pub attacks: HashMap<u32, JsonAttackStats>,
+    pub attacks: Vec<JsonAttackStats>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonBlockStats {
+    pub id: u32,
     pub name: String,
     #[serde(flatten)]
     pub flags: HashMap<String, i32>,
@@ -51,6 +75,7 @@ pub struct JsonBlockStats {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonAttackStats {
+    pub id: u32,
     pub name: String,
     #[serde(flatten)]
     pub flags: HashMap<String, i32>,
@@ -71,6 +96,21 @@ fn flag_id(flag: &str) -> Option<u8> {
     }
 }
 
+fn flag_name(flag: u8) -> &'static str {
+    match flag {
+        HEALTH_FLAG =>"health",
+        MASS_FLAG => "mass",
+        COST_FLAG => "cost",
+        RANKING_FLAG => "roboRanking",
+        COMPLEXITY_FLAG => "cpuCost",
+        THRUST_FLAG => "thrust",
+        ROTATION_FLAG => "rotationSpeed",
+
+        DAMAGE_FLAG => "damage",
+        _ => "err"
+    }
+}
+
 impl TryFrom<&[u8]> for StatsFile {
     type Error = std::io::Error;
     fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
@@ -79,7 +119,7 @@ impl TryFrom<&[u8]> for StatsFile {
         let mut buf4 = [0u8; 4];
         file.read_exact(&mut buf4)?;
         let magic = u32::from_be_bytes(buf4);
-        if magic != MAGIC_NUMBER {
+        if magic != STATFILE_MAGIC_NUMBER {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Magic number was invalid: {}", magic),
@@ -109,23 +149,23 @@ impl From<JsonStatsFile> for StatsFile {
         let mut sf = StatsFile::new();
         file.blocks.iter().for_each(|elem| {
             let mut map = HashMap::new();
-            elem.1.flags.iter().for_each(|flag| {
+            elem.flags.iter().for_each(|flag| {
                 let idn = flag_id(flag.0);
                 if let Some(x) = idn {
                     map.insert(x, *flag.1);
                 }
             });
-            sf.blocks.data.insert(*elem.0, map);
+            sf.blocks.data.insert(elem.id, map);
         });
         file.attacks.iter().for_each(|elem| {
             let mut map = HashMap::new();
-            elem.1.flags.iter().for_each(|flag| {
+            elem.flags.iter().for_each(|flag| {
                 let idn = flag_id(flag.0);
                 if let Some(x) = idn {
                     map.insert(x, *flag.1);
                 }
             });
-            sf.attacks.data.insert(*elem.0, map);
+            sf.attacks.data.insert(elem.id, map);
         });
         sf
     }
@@ -224,7 +264,7 @@ impl StatsFile {
 
     pub fn compile(self: &StatsFile) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
-        file.write_all(&u32::to_be_bytes(MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
+        file.write_all(&u32::to_be_bytes(STATFILE_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
         file.write_all(&u32::to_be_bytes(CURRENT_VERSION))?;
 
         StatsFile::compile_sub(&self.blocks, &mut file)?;
