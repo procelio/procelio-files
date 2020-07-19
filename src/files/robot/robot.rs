@@ -24,14 +24,14 @@ pub struct JsonPart {
     extra_data: Vec<u8>
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Robot {
     metadata: u64,
     bot_name: Vec<u8>,
     parts: Vec<Part>
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Part {
     id: u32,
     pos_x: i8,

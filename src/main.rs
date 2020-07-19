@@ -7,6 +7,8 @@ fn usage() {
     println!("  invbin path/to/json [path/to/bin]: converts a json inventory file to binary");
     println!("  botbin path/to/json [path/to/bin]: converts a json robot file to binary");
     println!("  dump path/to/file: prints out the contents of a binary file in readable form");
+    println!("  reserialize path/to/file: update a file to the newest binary version of it");
+
 }
 
 fn main() {
@@ -25,6 +27,7 @@ fn main() {
         "invbin" => tools::invbin::tool(args),
         "botbin" => tools::botbin::tool(args),
         "dump" => tools::dump::tool(args),
+        "reserialize" => tools::reserialize::tool(args),
         _ => {usage(); return;}
     };
 

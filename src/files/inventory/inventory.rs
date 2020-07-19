@@ -24,7 +24,7 @@ pub struct PartCount {
     pub count: u32
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Inventory {
     parts: fnv::FnvHashMap<u32, u32>
 }
