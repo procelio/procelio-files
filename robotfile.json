@@ -1,0 +1,30 @@
+{
+    "name": "robot",
+    "metadata": 3,
+    "parts": [
+      {
+        "id": 32,
+        "pos": [1, 4, -1],
+        "rot": 68,
+        "color": [255, 255, 0],
+        "alpha": 255,
+        "extra_data": []
+      },
+      {
+        "id": 32,
+        "pos": [-1, 4, -1],
+        "rot": 86,
+        "color": [255, 255, 0],
+        "alpha": 255,
+        "extra_data": []
+      },
+      {
+        "id": 57,
+        "pos": [0, 4, -1],
+        "rot": 0,
+        "color": [0, 70, 125],
+        "alpha": 255,
+        "extra_data": [0, 219, 75, 6]
+      }
+    ]
+  }
