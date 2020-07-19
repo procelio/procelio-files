@@ -1,0 +1,200 @@
+{
+  "blocks": [
+    {
+      "id": 1,
+      "name": "Core1",
+      "health": 200,
+      "mass": 15,
+      "cost": 0
+    },
+    {
+      "id": 2,
+      "name": "NormalCube",
+      "health": 100,
+      "mass": 10,
+      "cost": 100
+    },
+    {
+      "id": 3,
+      "name": "NormalInner",
+      "health": 70,
+      "mass": 7,
+      "cost": 120
+    },
+    {
+      "id": 4,
+      "name": "NormalTetra",
+      "health": 30,
+      "mass": 3,
+      "cost": 110
+    },
+    {
+      "id": 5,
+      "name": "NormalPrism",
+      "health": 50,
+      "mass": 5,
+      "cost": 130
+    },
+    {
+      "id": 6,
+      "name": "HeavyCube",
+      "health": 125,
+      "mass": 30,
+      "cost": 110
+    },
+    {
+      "id": 7,
+      "name": "HeavyInner",
+      "health": 88,
+      "mass": 21,
+      "cost": 120
+    },
+    {
+      "id": 8,
+      "name": "HeavyTetra",
+      "health": 38,
+      "mass": 9,
+      "cost": 110
+    },
+    {
+      "id": 9,
+      "name": "HeavyPrism",
+      "health": 63,
+      "mass": 15,
+      "cost": 130
+    },
+    {
+      "id": 10,
+      "name": "GlassCube",
+      "health": 75,
+      "mass": 5,
+      "cost": 100
+    },
+    {
+      "id": 11,
+      "name": "GlassInner",
+      "health": 50,
+      "mass": 3,
+      "cost": 120
+    },
+    {
+      "id": 12,
+      "name": "GlassTetra",
+      "health": 20,
+      "mass": 1,
+      "cost": 110
+    },
+    {
+      "id": 13,
+      "name": "GlassPrism",
+      "health": 35,
+      "mass": 2,
+      "cost": 130
+    },
+	{
+      "id": 14,
+      "name": "Wheel",
+      "health": 500,
+      "mass": 50,
+      "cost": 450
+    },
+    {
+      "id": 14,
+      "name": "1x3Airframe",
+      "health": 200,
+      "mass": 12,
+      "cost": 175
+    },
+	{
+      "id": 15,
+      "name": "Hoverblade",
+      "health": 400,
+      "mass": 40,
+      "cost": 500
+    },
+    {
+      "id": 15,
+      "name": "1x3AirframeCurve",
+      "health": 200,
+      "mass": 10,
+      "cost": 200
+    },
+	{
+      "id": 16,
+      "name": "BigThruster",
+      "health": 300,
+      "mass": 60,
+      "cost": 800
+    },
+    {
+      "id": 17,
+      "name": "SmallThruster",
+      "health": 75,
+      "mass": 20,
+      "cost": 620
+    },
+	{
+      "id": 18,
+      "name": "LaserGun",
+      "health": 300,
+      "mass": 40,
+      "cost": 1200
+    },
+	{
+      "id": 20,
+      "name": "NormalPyramid",
+      "health": 50,
+      "mass": 5,
+      "cost": 100
+    },
+    {
+      "id": 21,
+      "name": "1x4Airframe",
+      "health": 300,
+      "mass": 20,
+      "cost": 300
+    },
+	{
+      "id": 22,
+      "name": "1x6Airframe",
+      "health": 400,
+      "mass": 30,
+      "cost": 500
+    },
+	{
+      "id": 23,
+      "name": "3CurveAirframe",
+      "health": 200,
+      "mass": 18,
+      "cost": 350
+    },
+	{
+      "id": 24,
+      "name": "5CurveAirframe",
+      "health": 300,
+      "mass": 28,
+      "cost": 650
+    },
+    {
+      "id": 25,
+      "name": "3TAirframe",
+      "health": 300,
+      "mass": 35,
+      "cost": 725
+    },
+    {
+      "id": 26,
+      "name": "Sled",
+      "health": 200,
+      "mass": 100,
+      "cost": 75
+    }
+    ],
+  "attacks": [
+    {
+      "id": 1,
+      "name": "alphaSMGProjectile",
+      "damage": 230
+    }
+  ]
+}

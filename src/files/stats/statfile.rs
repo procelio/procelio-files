@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use serde::ser::{Serializer, SerializeMap};
 
-pub const STATFILE_MAGIC_NUMBER: u32 = 0x1EF1A757;
+pub const STATFILE_MAGIC_NUMBER: u32 = 0x1EF1A757; // 57A7F11E "statfile"
 const CURRENT_VERSION: u32 = 2;
 
 pub const HEALTH_FLAG: u8 = 0;

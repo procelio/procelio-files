@@ -1,0 +1,25 @@
+{
+    "parts": [
+      {
+        "id": 1,
+        "name": "Core1",
+        "count": 3
+      },
+      {
+        "id": 6,
+        "name": "HeavyCube",
+        "count": 13
+      },
+      {
+        "id": 13,
+        "name": "HeavyCube",
+        "count": 2
+      },
+      {
+        "id": 15,
+        "name": "Wheelish",
+        "count": 1
+      }
+    ]
+  }
+  
