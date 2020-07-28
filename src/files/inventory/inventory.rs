@@ -15,18 +15,18 @@ pub struct JsonInventory {
 pub struct JsonPartCount {
     pub id: u32,
     pub name: String,
-    pub count: u32
+    pub count: i32
 }
 
 #[derive(Clone, Serialize)]
 pub struct PartCount {
     pub id: u32,
-    pub count: u32
+    pub count: i32
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Inventory {
-    parts: fnv::FnvHashMap<u32, u32>
+    parts: fnv::FnvHashMap<u32, i32>
 }
 
 impl TryFrom<&[u8]> for Inventory {
@@ -78,7 +78,7 @@ impl Inventory {
     #[allow(dead_code)] // lib function
     pub fn add_inventories(from: Inventory, mut into: Inventory) -> Result<Inventory, String> {
         for elem in from.parts {
-            let summed = into.parts.get(&elem.0).unwrap_or(&0u32).checked_add(elem.1);
+            let summed = into.parts.get(&elem.0).unwrap_or(&0i32).checked_add(elem.1);
             match summed {
                 None => { return Err(format!("u32 overflow occurred for part {}", elem.0)); },
                 Some(s) => { into.parts.insert(elem.0, s); }
@@ -88,17 +88,18 @@ impl Inventory {
     }
 
     // Subtract "from"'s data from "into"
-    // Returns Ok(Inv) if successful, Err(msg) if not (e.g. count would drop below zero)
+    // Returns Ok(Inv) if successful, Err(inv) if not (e.g. count would drop below zero)
     #[allow(dead_code)] // lib function
-    pub fn subtract_inventories(from: Inventory, mut into: Inventory) -> Result<Inventory, String> {
+    pub fn subtract_inventories(from: Inventory, mut into: Inventory) -> Result<Inventory, Inventory> {
+        let mut negative = false;
         for elem in from.parts {
-            let in_into = *into.parts.get(&elem.0).unwrap_or(&0u32);
-            match elem.1 > in_into {
-                true => { return Err(format!("Tried to remove too many of {}: count would drop below 0", elem.0)) },
-                false => { into.parts.insert(elem.0, in_into - elem.1); }
+            let in_into = *into.parts.get(&elem.0).unwrap_or(&0i32);
+            if elem.1 > in_into {
+                negative = true;
             }
+            into.parts.insert(elem.0, in_into - elem.1);
         }
-        Ok(into)
+        if negative { Err(into) } else { Ok(into) }
     }
 
     fn from_v1(inv: &mut Inventory, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
@@ -112,7 +113,7 @@ impl Inventory {
             let id = u16::from_be_bytes(buf2);
             file.read_exact(&mut buf4)?;
             let val = u32::from_be_bytes(buf4);
-            inv.parts.insert(id.into(), val);
+            inv.parts.insert(id.into(), val as i32);
         }
 
         Ok(())
@@ -127,7 +128,7 @@ impl Inventory {
             file.read_exact(&mut buf4)?;
             let part_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf4)?;
-            let part_count = u32::from_be_bytes(buf4);
+            let part_count = i32::from_be_bytes(buf4);
             inv.parts.insert(part_id, part_count);
         }
         Ok(())
@@ -146,7 +147,7 @@ impl Inventory {
         file.write_all(&u32::to_be_bytes(self.parts.len() as u32))?;
         for elem in self.parts.iter() {
             file.write_all(&u32::to_be_bytes(*elem.0))?;
-            file.write_all(&u32::to_be_bytes(*elem.1))?;
+            file.write_all(&i32::to_be_bytes(*elem.1))?;
         }
         Ok(file.into_inner())
     }

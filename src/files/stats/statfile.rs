@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use fnv::FnvHashMap;
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use serde::ser::{Serializer, SerializeMap};
@@ -24,7 +25,7 @@ pub struct StatsFile {
 
 #[derive(Clone)]
 pub struct FlagStats {
-    pub data: HashMap<u32, HashMap<u8, i32>>,
+    pub data: FnvHashMap<u32, FnvHashMap<u8, i32>>,
 }
 
 impl Serialize for FlagStats {
@@ -52,7 +53,7 @@ impl Serialize for FlagStats {
 impl FlagStats {
     fn new() -> FlagStats {
         FlagStats {
-            data: HashMap::new(),
+            data: FnvHashMap::default(),
         }
     }
 }
@@ -148,7 +149,7 @@ impl From<JsonStatsFile> for StatsFile {
     fn from(file: JsonStatsFile) -> Self {
         let mut sf = StatsFile::new();
         file.blocks.iter().for_each(|elem| {
-            let mut map = HashMap::new();
+            let mut map = FnvHashMap::default();
             elem.flags.iter().for_each(|flag| {
                 let idn = flag_id(flag.0);
                 if let Some(x) = idn {
@@ -158,7 +159,7 @@ impl From<JsonStatsFile> for StatsFile {
             sf.blocks.data.insert(elem.id, map);
         });
         file.attacks.iter().for_each(|elem| {
-            let mut map = HashMap::new();
+            let mut map = FnvHashMap::default();
             elem.flags.iter().for_each(|flag| {
                 let idn = flag_id(flag.0);
                 if let Some(x) = idn {
@@ -184,7 +185,7 @@ impl StatsFile {
             let id = u16::from_be_bytes(buf2);
             file.read_exact(&mut buf1)?;
             let fc = u8::from_be_bytes(buf1);
-            let mut map = HashMap::new();
+            let mut map = FnvHashMap::default();
             for _ in 0..fc {
                 file.read_exact(&mut buf1)?;
                 let flag = u8::from_be_bytes(buf1);
@@ -209,7 +210,7 @@ impl StatsFile {
             let entity_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
             let num_flags = u8::from_be_bytes(buf1);
-            let mut map = HashMap::new();
+            let mut map = FnvHashMap::default();
             for _ in 0..num_flags {
                 file.read_exact(&mut buf1)?;
                 let flag = u8::from_be_bytes(buf1);
@@ -227,7 +228,7 @@ impl StatsFile {
             let entity_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
             let num_flags = u8::from_be_bytes(buf1);
-            let mut map = HashMap::new();
+            let mut map = FnvHashMap::default();
             for _ in 0..num_flags {
                 file.read_exact(&mut buf1)?;
                 let flag = u8::from_be_bytes(buf1);

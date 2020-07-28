@@ -11,7 +11,7 @@ All multi-byte numbers are big-endian and unsigned unless otherwise mentioned
 
 N times:
   4 bytes: block ID
-  4 bytes: block count
+  4 bytes SIGNED: block count
 ```
 
 ### JSON
