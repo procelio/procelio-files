@@ -1,5 +1,15 @@
 {
     "parts": [
+      {
+        "id": 3,
+        "name": "idk",
+        "count": 2
+      },
+      {
+        "id": 17,
+        "name": "tier 1 wheel",
+        "count": 80000
+      }
     ]
   }
   

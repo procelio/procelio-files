@@ -26,23 +26,23 @@ pub struct JsonPart {
 
 #[derive(Serialize, Deserialize)]
 pub struct Robot {
-    metadata: u64,
-    bot_name: Vec<u8>,
-    parts: Vec<Part>
+    pub metadata: u64,
+    pub bot_name: Vec<u8>,
+    pub parts: Vec<Part>
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Part {
-    id: u32,
-    pos_x: i8,
-    pos_y: i8,
-    pos_z: i8,
-    rotation: u8,
-    color_r: u8,
-    color_g: u8,
-    color_b: u8,
-    alpha_channel: u8,
-    extra_bytes: Vec<u8>
+    pub id: u32,
+    pub pos_x: i8,
+    pub pos_y: i8,
+    pub pos_z: i8,
+    pub rotation: u8,
+    pub color_r: u8,
+    pub color_g: u8,
+    pub color_b: u8,
+    pub alpha_channel: u8,
+    pub extra_bytes: Vec<u8>
 }
 
 impl TryFrom<&[u8]> for Robot {

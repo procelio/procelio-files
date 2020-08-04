@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use fnv;
+use crate::files::robot::robot::Robot;
 pub const INVENTORY_MAGIC_NUMBER: u32 = 0xC50CB115; // 15B10CC5 "IsBloccs"
 const CURRENT_VERSION: u32 = 2;
 
@@ -26,7 +27,7 @@ pub struct PartCount {
 
 #[derive(Serialize, Deserialize)]
 pub struct Inventory {
-    parts: fnv::FnvHashMap<u32, i32>
+    pub parts: fnv::FnvHashMap<u32, i32>
 }
 
 impl TryFrom<&[u8]> for Inventory {
@@ -69,6 +70,16 @@ impl From<JsonInventory> for Inventory {
             sf.parts.insert(elem.id, elem.count);
         });
         sf
+    }
+}
+
+impl From<Robot> for Inventory {
+    fn from(bot: Robot) -> Self {
+        let mut inv = Inventory::new();
+        bot.parts.iter().for_each(|elem| {
+            inv.add(elem.id, 1);
+        });
+        inv
     }
 }
 
@@ -150,5 +161,9 @@ impl Inventory {
             file.write_all(&i32::to_be_bytes(*elem.1))?;
         }
         Ok(file.into_inner())
+    }
+
+    pub fn add(self: &mut Inventory, part: u32, count: i32) {
+        self.parts.insert(part, self.parts.get(&part).unwrap_or(&0) + count);
     }
 }
