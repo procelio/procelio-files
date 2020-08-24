@@ -24,14 +24,14 @@ pub struct JsonPart {
     extra_data: Vec<u8>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Robot {
     pub metadata: u64,
     pub bot_name: Vec<u8>,
     pub parts: Vec<Part>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Part {
     pub id: u32,
     pub pos_x: i8,
@@ -43,6 +43,17 @@ pub struct Part {
     pub color_b: u8,
     pub alpha_channel: u8,
     pub extra_bytes: Vec<u8>
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
+pub struct RobotMetadataInfo {
+    pub name: String,
+    pub cpu: i32,
+    pub ranking: i32,
+    pub mass: i32,
+    pub cost: i32,
+    pub primary_weapon: u32,
+    pub secondary_weapon: u32
 }
 
 impl TryFrom<&[u8]> for Robot {
@@ -103,8 +114,6 @@ impl From<JsonRobot> for Robot {
 }
 
 impl Robot {
-
-
     fn from_v1(inv: &mut Robot, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
         let mut buf4 = [0u8; 4];
         let mut buf2 = [0u8; 2];

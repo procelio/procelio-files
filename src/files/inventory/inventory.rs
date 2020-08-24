@@ -87,12 +87,12 @@ impl Inventory {
     // Add "from"'s data into "into", returning Ok(Inv) if successful or Err(msg) if not
     // Will fail if u32 overflow occurs
     #[allow(dead_code)] // lib function
-    pub fn add_inventories(from: Inventory, mut into: Inventory) -> Result<Inventory, String> {
-        for elem in from.parts {
-            let summed = into.parts.get(&elem.0).unwrap_or(&0i32).checked_add(elem.1);
+    pub fn add_inventories(from: &Inventory, mut into: Inventory) -> Result<Inventory, String> {
+        for elem in from.parts.iter() {
+            let summed = into.parts.get(&elem.0).unwrap_or(&0i32).checked_add(*elem.1);
             match summed {
                 None => { return Err(format!("u32 overflow occurred for part {}", elem.0)); },
-                Some(s) => { into.parts.insert(elem.0, s); }
+                Some(s) => { into.parts.insert(*elem.0, s); }
             }
         }
         Ok(into)
