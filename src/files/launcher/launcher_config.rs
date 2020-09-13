@@ -3,7 +3,7 @@ use serde;
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct UpdateInfo {
   pub title: String,
-  pub version: [u32; 3], // ([major, minor, patch], dev)
+  pub version: [u32; 3], // ([major, minor, patch])
   pub dev: bool, // true iff dev build
   pub description: String,
   #[serde(skip_serializing_if = "Option::is_none")]

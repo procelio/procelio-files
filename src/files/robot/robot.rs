@@ -45,7 +45,7 @@ pub struct Part {
     pub extra_bytes: Vec<u8>
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
 pub struct RobotMetadataInfo {
     pub name: String,
     pub cpu: i32,

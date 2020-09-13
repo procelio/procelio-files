@@ -8,6 +8,8 @@ fn usage() {
     println!("  botbin path/to/json [path/to/bin]: converts a json robot file to binary");
     println!("  dump path/to/file: prints out the contents of a binary file in readable form");
     println!("  reserialize path/to/file: update a file to the newest binary version of it");
+    println!("  diff path/to/from path/to/to: Creates a patch between these two game builds");
+    println!("  zip path/to/dir: Zip up a directory");
 
 }
 
@@ -28,6 +30,9 @@ fn main() {
         "botbin" => tools::botbin::tool(args),
         "dump" => tools::dump::tool(args),
         "reserialize" => tools::reserialize::tool(args),
+        "diff" => tools::diff::tool(args),
+        "zip" => tools::zip::tool(args),
+        "patch" => tools::patch::tool(args),
         _ => {usage(); return;}
     };
 
