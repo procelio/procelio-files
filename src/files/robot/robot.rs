@@ -187,7 +187,7 @@ impl Robot {
 
         file.read_exact(&mut buf4)?;
         let num_elems = u32::from_be_bytes(buf4);
-        for _ in 0..num_elems {
+        for i in 0..num_elems {
             file.read_exact(&mut buf4)?;
             let part_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
@@ -209,7 +209,7 @@ impl Robot {
             file.read_exact(&mut buf1)?;
             let extradata_size = u8::from_be_bytes(buf1);
             if extradata_size > MAX_EXTRADATA_SIZE {
-                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Extra data region can only be 64 bytes long"))
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("Block {}: Extra data region can only be 64 bytes long (was {})", i, extradata_size)));
             }
             let mut bytes = vec!(0u8; extradata_size.into());
             file.read_exact(&mut bytes)?;
