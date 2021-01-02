@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use super::build_stuff::*;
 use md5::Digest;
 use std::convert::TryFrom;
+use vcdiff;
 #[derive(Serialize, Deserialize)]
 pub struct DeltaManifest {
     pub hashes: Vec<String>,
@@ -20,11 +21,19 @@ fn dump_usage() {
 }
 
 pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
+
     let bytes_from = std::fs::read(from).unwrap();
     let bytes_to = std::fs::read(to).unwrap();
-    let writer = std::fs::File::create(patch).unwrap();
-    
-    bsdiff_rs::jbsdiff40_32bit(&bytes_from, &bytes_to, writer).unwrap();
+    if bytes_from == bytes_to {
+        println!("File unchanged!");
+        return;
+    }
+    println!("A {}", bytes_from.len());
+    println!("B {}", bytes_to.len());
+    let out = vcdiff::encode(&bytes_from, &bytes_to, vcdiff::FormatExtension::empty(), true);
+    println!("D  {:?}", out.len());
+    println!("C {:?}", &patch);
+    std::fs::write(patch, out).unwrap();
 }
 
 fn get_all_files_recursive_impl(root: &Path, dir: &Path, map: &mut HashSet<PathBuf>) {
@@ -141,7 +150,6 @@ pub fn tool(mut args: std::env::Args) {
         return;
     }
 
-    println!("AA {:?}",src_path.join("manifest.json") );
     let src_manifest : BuildManifest = serde_json::from_slice(&std::fs::read(src_path.join("manifest.json")).unwrap()).unwrap();
     let dst_manifest : BuildManifest = serde_json::from_slice(&std::fs::read(dst_path.join("manifest.json")).unwrap()).unwrap();
 
@@ -151,7 +159,7 @@ pub fn tool(mut args: std::env::Args) {
     let patch = Patch::new(src_version, dst_version);
     println!("Assembling patch {}", String::from(&patch));
 
-    let patch_dir = args.next().unwrap_or(String::from(&patch));
+    let patch_dir = args.next().unwrap_or(format!("delta-{}", String::from(&patch)));
     let patch_dir = Path::new(&patch_dir);
     fs::create_dir_all(&patch_dir).unwrap();
 

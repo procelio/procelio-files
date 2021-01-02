@@ -12,7 +12,7 @@ pub fn patch_file(from: &Path, patch: &Path, out: &Path) {
     let bytes_from = std::fs::read(from).unwrap();
     let writer = std::fs::File::create(out).unwrap();
     
-    bsdiff_rs::jbspatch40_32bit(&bytes_from, writer, std::fs::File::open(patch).unwrap()).unwrap();
+  //  bsdiff_rs::jbspatch40_32bit(&bytes_from, writer, std::fs::File::open(patch).unwrap()).unwrap();
 }
 
 pub fn tool(mut args: std::env::Args) {
