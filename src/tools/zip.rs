@@ -61,14 +61,21 @@ pub fn tool(mut args: std::env::Args) {
         zip_usage();
         return;
     }
-   
+
     if !fs::metadata(&folder).unwrap().is_dir() {
         println!("Error: must be directory");
         return;
     }
     let folder = std::path::PathBuf::from(folder);
     let mut path = folder.clone();
-    path.set_extension(format!("{}.zip", path.extension().unwrap().to_str().unwrap()));
+    let name = args.next().unwrap_or(path.file_stem().unwrap().to_str().unwrap().to_string());
+    if (name == "--help" || name == "-h") {
+        zip_usage();
+        return;
+    }
+
+    path.set_file_name(name);
+    path.set_extension("zip");
     println!("H {:?}", &path);
     let writer = std::fs::File::create(&path).unwrap();
     zip_dir(&folder, writer).unwrap();

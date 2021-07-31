@@ -11,11 +11,14 @@ const CURRENT_VERSION: u32 = 2;
 pub const HEALTH_FLAG: u8 = 0;
 pub const MASS_FLAG: u8 = 1;
 pub const COST_FLAG: u8 = 2;
+pub const PREMIUM_COST_FLAG: u8 = 8;
 pub const RANKING_FLAG: u8 = 3;
 pub const COMPLEXITY_FLAG: u8 = 4;
 pub const THRUST_FLAG: u8 = 5;
 pub const ROTATION_FLAG: u8 = 6;
 pub const DAMAGE_FLAG: u8 = 7;
+pub const SHIELD_FLAG: u8 = 9;
+pub const SHIELD_CHARGE_RATE_FLAG: u8 = 10;
 
 #[derive(Clone, Serialize)]
 pub struct StatsFile {
@@ -91,6 +94,9 @@ fn flag_id(flag: &str) -> Option<u8> {
         "cpuCost" => Some(COMPLEXITY_FLAG),
         "thrust" => Some(THRUST_FLAG),
         "rotationSpeed" => Some(ROTATION_FLAG),
+        "shield" => Some(SHIELD_FLAG),
+        "shieldCharge" => Some(SHIELD_CHARGE_RATE_FLAG),
+        "premiumCost" => Some(PREMIUM_COST_FLAG),
 
         "damage" => Some(DAMAGE_FLAG),
         _ => None
@@ -106,8 +112,10 @@ fn flag_name(flag: u8) -> &'static str {
         COMPLEXITY_FLAG => "cpuCost",
         THRUST_FLAG => "thrust",
         ROTATION_FLAG => "rotationSpeed",
-
+        SHIELD_FLAG => "shield",
         DAMAGE_FLAG => "damage",
+        SHIELD_CHARGE_RATE_FLAG => "shieldCharge",
+        PREMIUM_COST_FLAG => "premiumCost",
         _ => "err"
     }
 }
