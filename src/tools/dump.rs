@@ -79,6 +79,22 @@ pub fn tool(mut args: std::env::Args) {
                 }
             }
         },
-        _ => { println!("Invalid filetype! Only supports [stats, inventory, robot]"); return;}
+        localization::localization::LOCALIZATION_MAGIC_NUMBER => {
+            br.seek(std::io::SeekFrom::Start(0)).unwrap();
+            let mut buf = std::vec::Vec::new();
+            br.read_to_end(&mut buf).unwrap();
+            let sf = localization::localization::Translation::try_from(buf.as_slice());
+            match sf {
+                Err(e) => {println!("Unable to parse file: {}", e);},
+                Ok(s) => {
+                    match serde_json::to_string_pretty(&s) {
+                        Err(e2) => {println!("Unable to serialize: {}", e2);},
+                        Ok(s2) => {println!("{}", s2);}
+                    }
+
+                }
+            }
+        },
+        _ => { println!("Invalid filetype! Only supports [stats, inventory, robot, translation]"); return;}
     }
 }

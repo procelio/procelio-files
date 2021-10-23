@@ -6,6 +6,7 @@ fn usage() {
     println!("  statbin path/to/json [path/to/bin]: converts a json stat file to binary");
     println!("  invbin path/to/json [path/to/bin]: converts a json inventory file to binary");
     println!("  botbin path/to/json [path/to/bin]: converts a json robot file to binary");
+    println!("  lang path/to/folder: converts language data to binary file");
     println!("  dump path/to/file: prints out the contents of a binary file in readable form");
     println!("  reserialize path/to/file: update a file to the newest binary version of it");
     println!("  diff path/to/from path/to/to: Creates a patch between these two game builds");
@@ -29,6 +30,7 @@ fn main() {
         "invbin" => tools::invbin::tool(args),
         "botbin" => tools::botbin::tool(args),
         "dump" => tools::dump::tool(args),
+        "lang" => tools::langbin::tool(args),
         "reserialize" => tools::reserialize::tool(args),
         "diff" => tools::diff::tool(args),
         "zip" => tools::zip::tool(args),

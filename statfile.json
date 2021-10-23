@@ -267,6 +267,56 @@
       "cost": 1500,
       "cpuCost": 40,
       "rotationSpeed": 270
+    },
+	  {
+      "id": 33,
+      "name": "AlphaHealgun",
+      "health": 3600,
+      "mass": 55,
+      "cost": 1200,
+      "cpuCost": 36,
+      "rotationSpeed": 720
+    },
+	  {
+      "id": 34,
+      "name": "AlphaSecondaryMines",
+      "health": 2200,
+      "mass": 25,
+      "cost": 1500,
+      "cpuCost": 28
+    },
+	  {
+      "id": 35,
+      "name": "AlphaSecondaryShield",
+      "health": 3500,
+      "mass": 70,
+      "cost": 2100,
+      "cpuCost": 60
+    },
+	  {
+      "id": 36,
+      "name": "AlphaSecondaryRocket",
+      "health": 1200,
+      "mass": 25,
+      "cost": 1500,
+      "cpuCost": 40,
+      "rotationSpeed": 270
+    },
+	  {
+      "id": 37,
+      "name": "AlphaSecondarySmoke",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+	  {
+      "id": 38,
+      "name": "AlphaSecondaryBlade",
+      "health": 1400,
+      "mass": 22,
+      "cost": 1500,
+      "cpuCost": 24
     }
     ],
   "attacks": [
@@ -283,6 +333,26 @@
     {
       "id": 3,
       "name": "alphaRailgunProjectile",
+      "damage": 3000
+    },
+    {
+      "id": 4,
+      "name": "nanoWeapon",
+      "damage": 5000
+    },
+    {
+      "id": 5,
+      "name": "mine projectile",
+      "damage": 3000
+    },
+    {
+      "id": 6,
+      "name": "rocket launch",
+      "damage": 900
+    },
+    {
+      "id": 7,
+      "name": "melee tesla",
       "damage": 3000
     }
   ]
