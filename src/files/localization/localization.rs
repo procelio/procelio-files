@@ -12,7 +12,7 @@ const CURRENT_VERSION: u32 = 1;
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct TextColor {
     #[serde(default="white_text")]
-    pub text_color: (u8, u8, u8)
+    pub color: (u8, u8, u8)
 }
 
 // serde needs a function to get the default 
@@ -20,7 +20,7 @@ fn white_text() -> (u8, u8, u8) {(255, 255, 255)}
 
 impl Default for TextColor {
     fn default() -> TextColor {
-        TextColor { text_color: white_text() }
+        TextColor { color: white_text() }
     }
 }
 
@@ -127,9 +127,9 @@ impl Translation {
         }
         file.write_all(&u8::to_be_bytes(modifications))?;
         file.write_all(&u8::to_be_bytes(text.alignment))?;
-        file.write_all(&u8::to_be_bytes(text.color.text_color.0))?;
-        file.write_all(&u8::to_be_bytes(text.color.text_color.1))?;
-        file.write_all(&u8::to_be_bytes(text.color.text_color.2))?;
+        file.write_all(&u8::to_be_bytes(text.color.color.0))?;
+        file.write_all(&u8::to_be_bytes(text.color.color.1))?;
+        file.write_all(&u8::to_be_bytes(text.color.color.2))?;
         Ok(())
     }
 
@@ -165,7 +165,7 @@ impl Translation {
         file.write_all(&u32::to_be_bytes(self.language_elements.len() as u32))?;
         println!("Writing elements at {:?}", file.position());
         for elem in &self.language_elements {
-            self.compile_elem(&mut file, &elem);
+            self.compile_elem(&mut file, &elem)?;
         }
 
         file.seek(SeekFrom::Start(0))?;
@@ -247,7 +247,7 @@ impl Translation {
                 underline: under,
                 strikethrough: strike,
                 alignment: algn,
-                color: TextColor { text_color: (r, g, b) }
+                color: TextColor { color: (r, g, b) }
             });
         }
         Ok(())
