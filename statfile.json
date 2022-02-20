@@ -4,7 +4,7 @@
       "id": 1,
       "name": "Core1",
       "health": 200,
-      "mass": 15,
+      "mass": 35,
       "cost": 0,
       "cpuCost": 0
     },
@@ -12,96 +12,96 @@
       "id": 2,
       "name": "NormalCube",
       "health": 100,
-      "mass": 10,
+      "mass": 15,
       "cost": 100,
       "cpuCost": 1
     },
     {
       "id": 3,
       "name": "NormalInner",
-      "health": 70,
-      "mass": 7,
-      "cost": 120,
+      "health": 95,
+      "mass": 14,
+      "cost": 100,
       "cpuCost": 1
     },
     {
       "id": 4,
       "name": "NormalTetra",
-      "health": 30,
-      "mass": 3,
-      "cost": 110,
+      "health": 85,
+      "mass": 10,
+      "cost": 100,
       "cpuCost": 1
     },
     {
       "id": 5,
       "name": "NormalPrism",
-      "health": 50,
-      "mass": 5,
-      "cost": 130,
+      "health": 90,
+      "mass": 12,
+      "cost": 100,
       "cpuCost": 1
     },
     {
       "id": 6,
       "name": "HeavyCube",
       "health": 125,
-      "mass": 30,
-      "cost": 110,
+      "mass": 40,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 7,
       "name": "HeavyInner",
-      "health": 88,
-      "mass": 21,
-      "cost": 120,
+      "health": 120,
+      "mass": 38,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 8,
       "name": "HeavyTetra",
-      "health": 38,
-      "mass": 9,
-      "cost": 110,
+      "health": 110,
+      "mass": 34,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 9,
       "name": "HeavyPrism",
-      "health": 63,
-      "mass": 15,
-      "cost": 130,
+      "health": 115,
+      "mass": 36,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 10,
       "name": "GlassCube",
       "health": 75,
-      "mass": 5,
-      "cost": 100,
+      "mass": 10,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 11,
       "name": "GlassInner",
-      "health": 50,
-      "mass": 3,
-      "cost": 120,
+      "health": 70,
+      "mass": 9,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 12,
       "name": "GlassTetra",
-      "health": 20,
-      "mass": 1,
-      "cost": 110,
+      "health": 60,
+      "mass": 7,
+      "cost": 125,
       "cpuCost": 1
     },
     {
       "id": 13,
       "name": "GlassPrism",
-      "health": 35,
-      "mass": 2,
-      "cost": 130,
+      "health": 65,
+      "mass": 8,
+      "cost": 125,
       "cpuCost": 1
     },
 	{
@@ -110,7 +110,7 @@
       "health": 1800,
       "mass": 50,
       "cost": 450,
-      "cpuCost": 19
+      "cpuCost": 16
     },
     {
       "id": 14,
@@ -124,7 +124,7 @@
       "id": 15,
       "name": "Hoverblade",
       "health": 1550,
-      "mass": 40,
+      "mass": 30,
       "cost": 500,
       "cpuCost": 22
     },
@@ -272,7 +272,7 @@
       "id": 33,
       "name": "AlphaHealgun",
       "health": 3600,
-      "mass": 55,
+      "mass": 45,
       "cost": 1200,
       "cpuCost": 36,
       "rotationSpeed": 720
@@ -317,13 +317,68 @@
       "mass": 22,
       "cost": 1500,
       "cpuCost": 24
+    },
+    {
+      "id": 39,
+      "name": "ElectroplateA_L",
+      "health": 200,
+      "mass": 34,
+      "shield": 3700,
+      "shieldCharge": 250,
+      "shieldChargeDelay": 5000,
+      "cost": 950,
+      "cpuCost": 29
+    },
+    {
+      "id": 40,
+      "name": "ElectroplateA_R",
+      "health": 200,
+      "mass": 34,
+      "shield": 3700,
+      "shieldCharge": 250,
+      "shieldChargeDelay": 5000,
+      "cost": 950,
+      "cpuCost": 29
+    },
+    {
+      "id": 41,
+      "name": "ElectroplateB_L",
+      "health": 200,
+      "mass": 22,
+      "shield": 3050,
+      "shieldCharge": 250,
+      "shieldChargeDelay": 5000,
+      "cost": 825,
+      "cpuCost": 22
+    },
+    {
+      "id": 42,
+      "name": "ElectroplateB_R",
+      "health": 200,
+      "mass": 22,
+      "shield": 3050,
+      "shieldCharge": 250,
+      "shieldChargeDelay": 5000,
+      "cost": 825,
+      "cpuCost": 22
+    },
+    {
+      "id": 43,
+      "name": "ElectroplateC",
+      "health": 200,
+      "mass": 22,
+      "shield": 2200,
+      "shieldCharge": 250,
+      "shieldChargeDelay": 5000,
+      "cost": 700,
+      "cpuCost": 19
     }
     ],
   "attacks": [
     {
       "id": 1,
       "name": "alphaSMGProjectile",
-      "damage": 230
+      "damage": 300
     },
     {
       "id": 2,
@@ -338,7 +393,7 @@
     {
       "id": 4,
       "name": "nanoWeapon",
-      "damage": 5000
+      "damage": 250
     },
     {
       "id": 5,

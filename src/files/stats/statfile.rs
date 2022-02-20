@@ -17,9 +17,15 @@ pub const COMPLEXITY_FLAG: u8 = 4;
 pub const THRUST_FLAG: u8 = 5;
 pub const ROTATION_FLAG: u8 = 6;
 pub const DAMAGE_FLAG: u8 = 7;
-pub const SHIELD_FLAG: u8 = 9;
-pub const SHIELD_CHARGE_RATE_FLAG: u8 = 10;
+pub const SHIELD_FLAG: u8 = 9; // shield HP
+pub const SHIELD_CHARGE_RATE_FLAG: u8 = 10; // rate of hp/sec
+pub const SHIELD_CHARGE_DELAY_FLAG: u8 = 11; // millis after damage before start healing again
+pub const USABILITY_HEALTH: u8 = 12; // How much "usable" HP there is (e.g. tesla blade charges)
+pub const LIFT_FLAG: u8 = 13;
 
+pub const SPECIAL_FLAG_1: u8 = 200; // Special per-part usage 0
+pub const SPECIAL_FLAG_2: u8 = 201; // Special per-part usage 1
+pub const SPECIAL_FLAG_3: u8 = 202; // Special per-part usage 2
 #[derive(Clone, Serialize)]
 pub struct StatsFile {
     pub blocks: FlagStats,
@@ -96,10 +102,22 @@ fn flag_id(flag: &str) -> Option<u8> {
         "rotationSpeed" => Some(ROTATION_FLAG),
         "shield" => Some(SHIELD_FLAG),
         "shieldCharge" => Some(SHIELD_CHARGE_RATE_FLAG),
+        "shieldChargeDelay" => Some(SHIELD_CHARGE_DELAY_FLAG),
         "premiumCost" => Some(PREMIUM_COST_FLAG),
-
+        "functionHealth" => Some(USABILITY_HEALTH),
         "damage" => Some(DAMAGE_FLAG),
-        _ => None
+        "lift" => Some(LIFT_FLAG),
+        x => {
+            if x.starts_with("spec1") {
+                Some(SPECIAL_FLAG_1)
+            } else if x.starts_with("spec2") {
+                Some(SPECIAL_FLAG_2)
+            } else if x.starts_with("spec3") {
+                Some(SPECIAL_FLAG_3)
+            } else {
+                None
+            }
+        }
     }
 }
 
@@ -115,7 +133,13 @@ fn flag_name(flag: u8) -> &'static str {
         SHIELD_FLAG => "shield",
         DAMAGE_FLAG => "damage",
         SHIELD_CHARGE_RATE_FLAG => "shieldCharge",
+        SHIELD_CHARGE_DELAY_FLAG => "shieldChargeDelay",
         PREMIUM_COST_FLAG => "premiumCost",
+        USABILITY_HEALTH => "functionHealth",
+        LIFT_FLAG => "lift",
+        SPECIAL_FLAG_1 => "spec1",
+        SPECIAL_FLAG_2 => "spec2",
+        SPECIAL_FLAG_3 => "spec3",
         _ => "err"
     }
 }
