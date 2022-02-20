@@ -372,6 +372,61 @@
       "shieldChargeDelay": 5000,
       "cost": 700,
       "cpuCost": 19
+    },
+    {
+      "id": 44,
+      "name": "Helium1x1x2",
+      "health": 150,
+      "mass": 20,
+      "cost": 400,
+      "cpuCost": 6,
+      "lift": 80,
+      "spec1_minlift": 40,
+      "spec2_ctrlspeed": 40
+    },
+    {
+      "id": 45,
+      "name": "Helium1x2x3",
+      "health": 400,
+      "mass": 40,
+      "cost": 500,
+      "cpuCost": 10,
+      "lift": 240,
+      "spec1_minlift": 120,
+      "spec2_ctrlspeed": 80
+    },
+    {
+      "id": 46,
+      "name": "Helium2x2x4",
+      "health": 1200,
+      "mass": 80,
+      "cost": 600,
+      "cpuCost": 12,
+      "lift": 640,
+      "spec1_minlift": 320,
+      "spec2_ctrlspeed": 200
+    },
+    {
+      "id": 47,
+      "name": "Helium3x3x5",
+      "health": 2600,
+      "mass": 180,
+      "cost": 700,
+      "cpuCost": 20,
+      "lift": 1800,
+      "spec1_minlift": 900,
+      "spec2_ctrlspeed": 120
+    },
+    {
+      "id": 48,
+      "name": "Helium3x4x8",
+      "health": 4800,
+      "mass": 360,
+      "cost": 800,
+      "cpuCost": 28,
+      "lift": 3840,
+      "spec1_minlift": 1920,
+      "spec2_ctrlspeed": 96
     }
     ],
   "attacks": [
