@@ -4,12 +4,12 @@ use std::io::{Cursor, Read, Write};
 use fnv;
 use crate::files::robot::robot::Robot;
 pub const INVENTORY_MAGIC_NUMBER: u32 = 0xC50CB115; // 15B10CC5 "IsBloccs"
-const CURRENT_VERSION: u32 = 2;
-
+const CURRENT_VERSION: u32 = 3;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonInventory {
-    parts: Vec<JsonPartCount>
+    parts: Vec<JsonPartCount>,
+    cosmetics: Vec<JsonPartCount>
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -19,15 +19,10 @@ pub struct JsonPartCount {
     pub count: i32
 }
 
-#[derive(Clone, Serialize)]
-pub struct PartCount {
-    pub id: u32,
-    pub count: i32
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct Inventory {
-    pub parts: fnv::FnvHashMap<u32, i32>
+    pub parts: fnv::FnvHashMap<u32, i32>,
+    pub cosmetics: fnv::FnvHashMap<u32, i32>
 }
 
 impl TryFrom<&[u8]> for Inventory {
@@ -50,6 +45,7 @@ impl TryFrom<&[u8]> for Inventory {
         let res: Result<(), std::io::Error> = match version {
             1 => Inventory::from_v1(&mut blank, &mut file),
             2 => Inventory::from_v2(&mut blank, &mut file),
+            3 => Inventory::from_v3(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Version was invalid: {}", version),
@@ -69,6 +65,9 @@ impl From<JsonInventory> for Inventory {
         file.parts.iter().for_each(|elem| {
             sf.parts.insert(elem.id, elem.count);
         });
+        file.cosmetics.iter().for_each(|elem| {
+            sf.cosmetics.insert(elem.id, elem.count);
+        });
         sf
     }
 }
@@ -77,7 +76,10 @@ impl From<Robot> for Inventory {
     fn from(bot: Robot) -> Self {
         let mut inv = Inventory::new();
         bot.parts.iter().for_each(|elem| {
-            inv.add(elem.id, 1);
+            inv.add_part(elem.id, 1);
+        });
+        bot.cosmetics.iter().for_each(|elem| {
+            inv.add_cosmetic(elem.id, 1);
         });
         inv
     }
@@ -94,6 +96,11 @@ impl Inventory {
                 None => { return Err(format!("u32 overflow occurred for part {}", elem.0)); },
                 Some(s) => { into.parts.insert(*elem.0, s); }
             }
+            let summed = into.cosmetics.get(&elem.0).unwrap_or(&0i32).checked_add(*elem.1);
+            match summed {
+                None => { return Err(format!("u32 overflow occurred for cosmetic {}", elem.0)); },
+                Some(s) => { into.cosmetics.insert(*elem.0, s); }
+            }
         }
         Ok(into)
     }
@@ -109,6 +116,13 @@ impl Inventory {
                 negative = true;
             }
             into.parts.insert(elem.0, in_into - elem.1);
+        }
+        for elem in from.cosmetics {
+            let in_into = *into.cosmetics.get(&elem.0).unwrap_or(&0i32);
+            if elem.1 > in_into {
+                negative = true;
+            }
+            into.cosmetics.insert(elem.0, in_into - elem.1);
         }
         if negative { Err(into) } else { Ok(into) }
     }
@@ -145,9 +159,27 @@ impl Inventory {
         Ok(())
     }
 
+    fn from_v3(inv: &mut Inventory, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+        let mut buf4 = [0u8; 4];
+
+        Inventory::from_v2(inv, file)?;
+
+        file.read_exact(&mut buf4)?;
+        let num_elems = u32::from_be_bytes(buf4);
+        for _ in 0..num_elems {
+            file.read_exact(&mut buf4)?;
+            let part_id = u32::from_be_bytes(buf4);
+            file.read_exact(&mut buf4)?;
+            let part_count = i32::from_be_bytes(buf4);
+            inv.cosmetics.insert(part_id, part_count);
+        }
+        Ok(())
+    }
+
     pub fn new() -> Inventory {
         Inventory {
-            parts: fnv::FnvHashMap::with_capacity_and_hasher(20, Default::default())
+            parts: fnv::FnvHashMap::with_capacity_and_hasher(20, Default::default()),
+            cosmetics: fnv::FnvHashMap::default()
         }
     }
 
@@ -160,10 +192,20 @@ impl Inventory {
             file.write_all(&u32::to_be_bytes(*elem.0))?;
             file.write_all(&i32::to_be_bytes(*elem.1))?;
         }
+
+        file.write_all(&u32::to_be_bytes(self.cosmetics.len() as u32))?;
+        for elem in self.cosmetics.iter() {
+            file.write_all(&u32::to_be_bytes(*elem.0))?;
+            file.write_all(&i32::to_be_bytes(*elem.1))?;
+        }
         Ok(file.into_inner())
     }
 
-    pub fn add(self: &mut Inventory, part: u32, count: i32) {
+    pub fn add_part(self: &mut Inventory, part: u32, count: i32) {
         self.parts.insert(part, self.parts.get(&part).unwrap_or(&0) + count);
+    }
+
+    pub fn add_cosmetic(self: &mut Inventory, cosmetic: u32, count: i32) {
+        self.cosmetics.insert(cosmetic, self.cosmetics.get(&cosmetic).unwrap_or(&0) + count);
     }
 }

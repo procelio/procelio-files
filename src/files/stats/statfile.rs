@@ -6,7 +6,7 @@ use std::io::{Cursor, Read, Write};
 use serde::ser::{Serializer, SerializeMap};
 
 pub const STATFILE_MAGIC_NUMBER: u32 = 0x1EF1A757; // 57A7F11E "statfile"
-const CURRENT_VERSION: u32 = 2;
+const CURRENT_VERSION: u32 = 3;
 
 pub const HEALTH_FLAG: u8 = 0;
 pub const MASS_FLAG: u8 = 1;
@@ -26,10 +26,12 @@ pub const LIFT_FLAG: u8 = 13;
 pub const SPECIAL_FLAG_1: u8 = 200; // Special per-part usage 0
 pub const SPECIAL_FLAG_2: u8 = 201; // Special per-part usage 1
 pub const SPECIAL_FLAG_3: u8 = 202; // Special per-part usage 2
+
 #[derive(Clone, Serialize)]
 pub struct StatsFile {
     pub blocks: FlagStats,
     pub attacks: FlagStats,
+    pub cosmetics: BinaryConfig
 }
 
 #[derive(Clone)]
@@ -67,12 +69,28 @@ impl FlagStats {
     }
 }
 
+#[derive(Clone, Serialize)]
+pub struct BinaryConfig {
+    pub data: FnvHashMap<u32, Vec<u8>>
+}
+
+impl BinaryConfig {
+    fn new() -> BinaryConfig {
+        BinaryConfig {
+            data: FnvHashMap::default()
+        }
+    }
+}
+
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonStatsFile {
     #[serde(rename = "blocks")]
     pub blocks: Vec<JsonBlockStats>,
     #[serde(rename = "attacks")]
     pub attacks: Vec<JsonAttackStats>,
+    #[serde(rename = "cosmetics")]
+    pub cosmetics: Vec<JsonCosmeticStats>
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -89,6 +107,13 @@ pub struct JsonAttackStats {
     pub name: String,
     #[serde(flatten)]
     pub flags: HashMap<String, i32>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct JsonCosmeticStats {
+    pub id: u32,
+    pub name: String,
+    pub config: Vec<u8>
 }
 
 fn flag_id(flag: &str) -> Option<u8> {
@@ -164,6 +189,7 @@ impl TryFrom<&[u8]> for StatsFile {
         let res: Result<(), std::io::Error> = match version {
             1 => StatsFile::from_v1(&mut blank, &mut file),
             2 => StatsFile::from_v2(&mut blank, &mut file),
+            3 => StatsFile::from_v3(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Version was invalid: {}", version),
@@ -199,6 +225,9 @@ impl From<JsonStatsFile> for StatsFile {
                 }
             });
             sf.attacks.data.insert(elem.id, map);
+        });
+        file.cosmetics.into_iter().for_each(|elem| {
+            sf.cosmetics.data.insert(elem.id, elem.config);
         });
         sf
     }
@@ -274,14 +303,36 @@ impl StatsFile {
         Ok(())
     }
 
+    fn from_v3(stats: &mut StatsFile, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+        let mut buf4 = [0u8; 4];
+        let mut buf1 = [0u8; 1];
+
+        StatsFile::from_v2(stats, file)?;
+
+        file.read_exact(&mut buf4)?;
+        let num_cosmetics = u32::from_be_bytes(buf4);
+        for _ in 0..num_cosmetics {
+            file.read_exact(&mut buf4);
+            let cosm_id = u32::from_be_bytes(buf4);
+            file.read_exact(&mut buf1);
+            let data_len = u8::from_be_bytes(buf1);
+            let mut n = vec![0, data_len];
+            file.read_exact(&mut n);
+            stats.cosmetics.data.insert(cosm_id, n);
+        }
+
+        Ok(())
+    }
+
     pub fn new() -> StatsFile {
         StatsFile {
             blocks: FlagStats::new(),
             attacks: FlagStats::new(),
+            cosmetics: BinaryConfig::new()
         }
     }
 
-    fn compile_sub(stat: &FlagStats, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
+    fn compile_sub_flag(stat: &FlagStats, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
         file.write_all(&u32::to_be_bytes(stat.data.len() as u32))?;
         for kvp in &stat.data {
             file.write_all(&u32::to_be_bytes(*kvp.0))?;
@@ -295,13 +346,25 @@ impl StatsFile {
         Ok(())
     }
 
+    fn compile_sub_bin(stat: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
+        file.write_all(&u32::to_be_bytes(stat.data.len() as u32))?;
+        for kvp in &stat.data {
+            file.write_all(&u32::to_be_bytes(*kvp.0))?;
+            file.write_all(&u8::to_be_bytes(kvp.1.len() as u8))?;
+            file.write_all(&kvp.1);
+        }
+
+        Ok(())
+    }
+
     pub fn compile(self: &StatsFile) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
         file.write_all(&u32::to_be_bytes(STATFILE_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
         file.write_all(&u32::to_be_bytes(CURRENT_VERSION))?;
 
-        StatsFile::compile_sub(&self.blocks, &mut file)?;
-        StatsFile::compile_sub(&self.attacks, &mut file)?;
+        StatsFile::compile_sub_flag(&self.blocks, &mut file)?;
+        StatsFile::compile_sub_flag(&self.attacks, &mut file)?;
+        StatsFile::compile_sub_bin(&self.cosmetics, &mut file)?;
         Ok(file.into_inner())
     }
 }

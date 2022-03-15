@@ -427,6 +427,89 @@
       "lift": 3840,
       "spec1_minlift": 1920,
       "spec2_ctrlspeed": 96
+    },
+    {
+      "id": 49,
+      "name": "Gyroscope",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+    {
+      "id": 50,
+      "name": "Radar",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+    {
+      "id": 51,
+      "name": "RadarJammer",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+    {
+      "id": 52,
+      "name": "HeadlightStandard",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+    {
+      "id": 53,
+      "name": "HeadlightAim",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+    {
+      "id": 54,
+      "name": "HeadlightPopup",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40
+    },
+    {
+      "id": 55,
+      "name": "PrototypePrimary1",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40,
+      "rotationSpeed": 270
+    },
+    {
+      "id": 56,
+      "name": "PrototypePrimary2",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40,
+      "rotationSpeed": 270
+    },
+    {
+      "id": 57,
+      "name": "PrototypePrimary3",
+      "health": 2800,
+      "mass": 45,
+      "cost": 1500,
+      "cpuCost": 40,
+      "rotationSpeed": 270
+    },
+    {
+      "id": 58,
+      "name": "IsopodCosmetic",
+      "health": 5,
+      "mass": 5,
+      "cost": 1000000,
+      "cpuCost": 5
     }
     ],
   "attacks": [

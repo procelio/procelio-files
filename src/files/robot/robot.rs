@@ -5,13 +5,14 @@ use std::io::Seek;
 use md5::{Md5, Digest};
 
 pub const ROBOT_MAGIC_NUMBER: u32 = 0xC571B040; // 40B071C5 "Robotics"
-const CURRENT_VERSION: u32 = 2;
+const CURRENT_VERSION: u32 = 3;
 pub const MAX_EXTRADATA_SIZE: u8 = 64;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonRobot {
     name: String,
     metadata: u64,
-    parts: Vec<JsonPart>
+    parts: Vec<JsonPart>,
+    cosmetics: Vec<JsonCosmetic>
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -24,11 +25,19 @@ pub struct JsonPart {
     extra_data: Vec<u8>
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct JsonCosmetic {
+    id: u32,
+    part_on: u32,
+    extra_data: Vec<u8>
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Robot {
     pub metadata: u64,
     pub bot_name: Vec<u8>,
-    pub parts: Vec<Part>
+    pub parts: Vec<Part>,
+    pub cosmetics: Vec<Cosmetic>
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -42,6 +51,13 @@ pub struct Part {
     pub color_g: u8,
     pub color_b: u8,
     pub alpha_channel: u8,
+    pub extra_bytes: Vec<u8>
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Cosmetic {
+    pub id: u32,
+    pub on_part: u32,
     pub extra_bytes: Vec<u8>
 }
 
@@ -76,6 +92,7 @@ impl TryFrom<&[u8]> for Robot {
         let res: Result<(), std::io::Error> = match version {
             1 => Robot::from_v1(&mut blank, &mut file),
             2 => Robot::from_v2(&mut blank, &mut file),
+            3 => Robot::from_v3(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Version was invalid: {}", version),
@@ -95,7 +112,7 @@ impl From<JsonRobot> for Robot {
         bot.bot_name = file.name.into_bytes();
         bot.metadata = file.metadata;
         bot.parts = Vec::new();
-        file.parts.iter().for_each( |part| {
+        file.parts.into_iter().for_each( |part| {
             bot.parts.push(Part {
                 id: part.id,
                 pos_x: part.pos[0],
@@ -106,8 +123,15 @@ impl From<JsonRobot> for Robot {
                 color_g: part.color[1],
                 color_b: part.color[2],
                 alpha_channel: part.alpha,
-                extra_bytes: part.extra_data.clone()
+                extra_bytes: part.extra_data
             })
+        });
+        file.cosmetics.into_iter().for_each(|part| {
+            bot.cosmetics.push(Cosmetic {
+                id: part.id,
+                on_part: part.part_on,
+                extra_bytes: part.extra_data
+            });
         });
         bot
     }
@@ -221,11 +245,40 @@ impl Robot {
         Ok(())
     }
 
+    fn from_v3(inv: &mut Robot, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+        let mut buf4 = [0u8; 4];
+        let mut buf1 = [0u8; 1];
+
+        Robot::from_v2(inv, file)?;
+
+        file.read_exact(&mut buf4)?;
+        let num_elems = u32::from_be_bytes(buf4);
+        for i in 0..num_elems {
+            file.read_exact(&mut buf4)?;
+            let cosm_id = u32::from_be_bytes(buf4);
+            file.read_exact(&mut buf4)?;
+            let on_id = u32::from_be_bytes(buf4);
+
+            file.read_exact(&mut buf1)?;
+            let extradata_size = u8::from_be_bytes(buf1);
+            if extradata_size > MAX_EXTRADATA_SIZE {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("Cosmetic {}: Extra data region can only be 64 bytes long (was {})", i, extradata_size)));
+            }
+            let mut bytes = vec!(0u8; extradata_size.into());
+            file.read_exact(&mut bytes)?;
+            inv.cosmetics.push( Cosmetic {
+                id: cosm_id, on_part: on_id, extra_bytes: bytes
+            });
+        }
+        Ok(())
+    }
+
     pub fn new() -> Robot {
         Robot {
             metadata: 0u64,
             bot_name: "Robot".to_owned().into_bytes(),
-            parts: Vec::new()
+            parts: Vec::new(),
+            cosmetics: Vec::new()
         }
     }
 
@@ -252,6 +305,16 @@ impl Robot {
             file.write_all(&u8::to_be_bytes(elem.color_g))?;
             file.write_all(&u8::to_be_bytes(elem.color_b))?;
             file.write_all(&u8::to_be_bytes(elem.alpha_channel))?;
+            if elem.extra_bytes.len() > MAX_EXTRADATA_SIZE.into() {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Extra data region can only be 64 bytes long"))
+            }
+            file.write_all(&u8::to_be_bytes(elem.extra_bytes.len() as u8))?;
+            file.write_all(&elem.extra_bytes)?;
+        }
+
+        for elem in self.cosmetics.iter() {
+            file.write_all(&u32::to_be_bytes(elem.id))?;
+            file.write_all(&u32::to_be_bytes(elem.on_part))?;
             if elem.extra_bytes.len() > MAX_EXTRADATA_SIZE.into() {
                 return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Extra data region can only be 64 bytes long"))
             }
