@@ -1,6 +1,6 @@
 use image::GenericImageView;
 
-use crate::files::localization::localization;
+use procelio_files::files::localization::localization;
 use std::io::{Read, Write};
 
 fn lang_usage() {
