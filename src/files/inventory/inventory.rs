@@ -186,18 +186,19 @@ impl Inventory {
     pub fn compile(self: &Inventory) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
         file.write_all(&u32::to_be_bytes(INVENTORY_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
-        file.write_all(&u32::to_be_bytes(CURRENT_VERSION))?;
+        file.write_all(&u32::to_be_bytes(2))?; // TODO fix CURRENT_VERSION))?;
         file.write_all(&u32::to_be_bytes(self.parts.len() as u32))?;
         for elem in self.parts.iter() {
             file.write_all(&u32::to_be_bytes(*elem.0))?;
             file.write_all(&i32::to_be_bytes(*elem.1))?;
         }
-
+/*
         file.write_all(&u32::to_be_bytes(self.cosmetics.len() as u32))?;
         for elem in self.cosmetics.iter() {
             file.write_all(&u32::to_be_bytes(*elem.0))?;
             file.write_all(&i32::to_be_bytes(*elem.1))?;
         }
+        */
         Ok(file.into_inner())
     }
 

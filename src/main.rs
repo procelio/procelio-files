@@ -11,7 +11,7 @@ fn usage() {
     println!("  reserialize path/to/file: update a file to the newest binary version of it");
     println!("  diff path/to/from path/to/to: Creates a patch between these two game builds");
     println!("  zip path/to/dir: Zip up a directory");
-
+    println!("  botmgmt: launch bot manager")
 }
 
 fn main() {
@@ -35,6 +35,7 @@ fn main() {
         "diff" => tools::diff::tool(args),
         "zip" => tools::zip::tool(args),
         "patch" => tools::patch::tool(args),
+        "botmgmt" => tools::botmgmt::tool(args),
         _ => {usage(); return;}
     };
 

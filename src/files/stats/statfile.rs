@@ -360,11 +360,11 @@ impl StatsFile {
     pub fn compile(self: &StatsFile) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
         file.write_all(&u32::to_be_bytes(STATFILE_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
-        file.write_all(&u32::to_be_bytes(CURRENT_VERSION))?;
+        file.write_all(&u32::to_be_bytes(2))?; // TODO fix CURRENT_VERSION))?;
 
         StatsFile::compile_sub_flag(&self.blocks, &mut file)?;
         StatsFile::compile_sub_flag(&self.attacks, &mut file)?;
-        StatsFile::compile_sub_bin(&self.cosmetics, &mut file)?;
+     //   StatsFile::compile_sub_bin(&self.cosmetics, &mut file)?;
         Ok(file.into_inner())
     }
 }

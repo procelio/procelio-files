@@ -29,7 +29,7 @@ fn zip_recursive<T: Write + std::io::Seek> (
         loop {
             let size = f.read(&mut bytes);
             match size {
-                Err(e) => {panic!(e); },
+                Err(e) => {panic!("{}", e); },
                 Ok(0) => {break;}
                 Ok(e) => {zipper.write_all(&bytes[0..e]).unwrap();}
             };

@@ -5,7 +5,6 @@ use serde::{Serialize, Deserialize};
 use super::build_stuff::*;
 use md5::Digest;
 use std::convert::TryFrom;
-use vcdiff;
 #[derive(Serialize, Deserialize)]
 pub struct DeltaManifest {
     pub hashes: Vec<String>,
@@ -20,6 +19,7 @@ fn dump_usage() {
     println!("  Creates a patch from the 'from' directory to the 'to' directory");
 }
 
+#[cfg(not(windows))]
 pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
 
     let bytes_from = std::fs::read(from).unwrap();
@@ -30,10 +30,18 @@ pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
     }
     println!("A {}", bytes_from.len());
     println!("B {}", bytes_to.len());
+
     let out = vcdiff::encode(&bytes_from, &bytes_to, vcdiff::FormatExtension::empty(), true);
     println!("D  {:?}", out.len());
     println!("C {:?}", &patch);
     std::fs::write(patch, out).unwrap();
+}
+
+
+#[cfg(windows)]
+pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
+    println!("No patch generation from Windows, sorry");
+    panic!();
 }
 
 fn get_all_files_recursive_impl(root: &Path, dir: &Path, map: &mut HashSet<PathBuf>) {

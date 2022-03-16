@@ -276,7 +276,7 @@ impl Robot {
     pub fn new() -> Robot {
         Robot {
             metadata: 0u64,
-            bot_name: "Robot".to_owned().into_bytes(),
+            bot_name: "robot".to_owned().into_bytes(),
             parts: Vec::new(),
             cosmetics: Vec::new()
         }
@@ -285,7 +285,7 @@ impl Robot {
     pub fn compile(self: &Robot) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
         file.write_all(&u32::to_be_bytes(ROBOT_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
-        file.write_all(&u32::to_be_bytes(CURRENT_VERSION))?;
+        file.write_all(&u32::to_be_bytes(2))?;// TODO fix CURRENT_VERSION))?;
         file.write_all(&u64::to_be_bytes(self.metadata))?;
         if self.bot_name.len() > u8::MAX.into() {
             return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Bot name can only be 255 bytes long"))
@@ -311,7 +311,7 @@ impl Robot {
             file.write_all(&u8::to_be_bytes(elem.extra_bytes.len() as u8))?;
             file.write_all(&elem.extra_bytes)?;
         }
-
+/*
         for elem in self.cosmetics.iter() {
             file.write_all(&u32::to_be_bytes(elem.id))?;
             file.write_all(&u32::to_be_bytes(elem.on_part))?;
@@ -321,7 +321,7 @@ impl Robot {
             file.write_all(&u8::to_be_bytes(elem.extra_bytes.len() as u8))?;
             file.write_all(&elem.extra_bytes)?;
         }
-
+*/
         let mut md5hash = Md5::new();
         let mut file_sans_hash = Vec::new();
         file.seek(std::io::SeekFrom::Start(8))?;
