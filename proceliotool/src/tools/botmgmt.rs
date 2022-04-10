@@ -1,5 +1,5 @@
 use procelio_files::files::robot::robot;
-use std::{io::{Read, Write, BufRead}, os::windows::prelude::MetadataExt};
+use std::io::{Read, Write, BufRead};
 use reqwest::StatusCode;
 use serde::{Serialize, Deserialize};
 use procelio_files::files::robot::robot::Robot;
@@ -90,7 +90,9 @@ pub fn tool(mut args: std::env::Args) {
     }
 
     let mut ok = false;
+    #[cfg(target_os = "windows")]
     loop {
+        use std::os::windows::prelude::MetadataExt;
         clearscreen::clear().expect("failed to clear screen");
         if !ok {
             println!("Bad command!");

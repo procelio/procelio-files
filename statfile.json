@@ -104,7 +104,7 @@
       "cost": 125,
       "cpuCost": 1
     },
-	{
+    {
       "id": 14,
       "name": "Wheel",
       "health": 1800,
@@ -113,14 +113,6 @@
       "cpuCost": 16
     },
     {
-      "id": 14,
-      "name": "1x3Airframe",
-      "health": 200,
-      "mass": 12,
-      "cost": 175,
-      "cpuCost": 8
-    },
-	{
       "id": 15,
       "name": "Hoverblade",
       "health": 1550,
@@ -129,14 +121,6 @@
       "cpuCost": 22
     },
     {
-      "id": 15,
-      "name": "1x3AirframeCurve",
-      "health": 200,
-      "mass": 10,
-      "cost": 200,
-      "cpuCost": 8
-    },
-	{
       "id": 16,
       "name": "BigThruster",
       "health": 2200,
@@ -510,8 +494,16 @@
       "mass": 5,
       "cost": 1000000,
       "cpuCost": 5
+    },
+    {
+      "id": 59,
+      "name": "NonSteerWheel",
+      "health": 2200,
+      "mass": 45,
+      "cost": 350,
+      "cpuCost": 12
     }
-    ],
+  ],
   "attacks": [
     {
       "id": 1,
