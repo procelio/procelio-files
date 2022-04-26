@@ -15,12 +15,12 @@ lazy_static = "1.4.0"
 hex = "0.4.2"
 zip = "0.5"
 time = "0.2.23"
+walkdir = "2"
+anyhow = "1.0.57"
 
 reqwest = { version =  "0.11.10", features = ["blocking", "json"]}
 dirs = "4.0.0"
 itertools = "0.10.3"
 clearscreen = "1.0.9"
 procelio_files = { path = ".." }
-
-[target.'cfg(not(windows))'.dependencies]
-vcdiff = "0.1.0"
+vcdiff = { path = "../../vcdiff-rs" }

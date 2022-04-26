@@ -19,9 +19,11 @@ fn dump_usage() {
     println!("  Creates a patch from the 'from' directory to the 'to' directory");
 }
 
-#[cfg(not(windows))]
-pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
+pub fn diff_bytes(from: &[u8], to: &[u8]) -> Vec<u8> {
+    vcdiff::encode(from, to, vcdiff::FormatExtension::empty(), true)
+}
 
+pub fn diff_file(from: &Path, to: &Path, patch: &Path) {
     let bytes_from = std::fs::read(from).unwrap();
     let bytes_to = std::fs::read(to).unwrap();
     if bytes_from == bytes_to {
@@ -31,17 +33,10 @@ pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
     println!("A {}", bytes_from.len());
     println!("B {}", bytes_to.len());
 
-    let out = vcdiff::encode(&bytes_from, &bytes_to, vcdiff::FormatExtension::empty(), true);
+    let out = diff_bytes(&bytes_from, &bytes_to);
     println!("D  {:?}", out.len());
     println!("C {:?}", &patch);
     std::fs::write(patch, out).unwrap();
-}
-
-
-#[cfg(windows)]
-pub fn patch_file(from: &Path, to: &Path, patch: &Path) {
-    println!("No patch generation from Windows, sorry");
-    panic!();
 }
 
 fn get_all_files_recursive_impl(root: &Path, dir: &Path, map: &mut HashSet<PathBuf>) {
@@ -131,7 +126,7 @@ pub fn run_diff(from_root: &Path, to_root: &Path, patch_root: &Path,
             Some(s) => std::fs::create_dir_all(s).unwrap()
         };
         
-        patch_file(&from_root.join(&path), &to_root.join(&path), &dst_path);
+        diff_file(&from_root.join(&path), &to_root.join(&path), &dst_path);
         add_hash(&path, to_root, manifest);
     }
 
