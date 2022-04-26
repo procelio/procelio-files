@@ -1,14 +1,10 @@
-use std::fs;
 use std::path::{Path, PathBuf};
-use std::collections::HashSet;
 use std::str::FromStr;
 use itertools::Itertools;
 use serde::{Serialize, Deserialize};
-use super::build_stuff::*;
 use md5::Digest;
-use std::convert::TryFrom;
 use super::diff::DeltaManifest;
-
+use std::io::Read;
 #[derive(Serialize, Deserialize)]
 pub struct InstallManifest {
     pub exec: String,
@@ -18,12 +14,6 @@ pub struct InstallManifest {
 
 pub fn patch_bytes(from: &[u8], patch: &[u8]) -> Vec<u8> {
   vcdiff::decode(from, patch)
-}
-
-pub fn patch_file(from: &Path, patch: &Path, out: &Path) {
-  let bytes_from = std::fs::read(from).unwrap();
-  let bytes_patch = std::fs::read(patch).unwrap();
-  std::fs::write(out, &patch_bytes(&bytes_from, &bytes_patch)).unwrap();
 }
 
 pub fn check_rollback(dir: &std::path::PathBuf) -> Result<(), anyhow::Error> {
@@ -50,16 +40,23 @@ pub fn check_rollback(dir: &std::path::PathBuf) -> Result<(), anyhow::Error> {
   Ok(())
 }
 
-pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: String, files: impl Iterator<Item = (std::path::PathBuf, Vec<u8>)>) -> Result<(), std::io::Error> {
+pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: String, files: impl Iterator<Item = (std::path::PathBuf, Vec<u8>)>, cb: Option<&dyn Fn(f32, String)>) -> Result<(), std::io::Error> {
   let tmpflag = root_path.join("rollback");
   std::fs::write(&tmpflag, &rollback)?;
 
   let patch_str = std::ffi::OsString::from_str("patch").unwrap();
   let roll_str = std::ffi::OsString::from_str(&rollback).unwrap();
-  for (path, data) in files {
-      let path = root_path.join(path);
+  let mut i = 0;
+  let n = manifest.hashes.len();
+  for (rawpath, data) in files {
+      let path = root_path.join(&rawpath);
       if path.is_dir() || path == tmpflag {
+        i += 1;
         continue;
+      }
+
+      if let Some(callback) = cb {
+        callback((i as f32) / (n as f32), format!("Patching {}", &rawpath.display()));
       }
 
       if path.extension() == Some(&patch_str) {
@@ -76,19 +73,28 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
         }
         std::fs::write(path, &data)?;
       };
+      i += 1;
   }
 
+  i = 0;
   for elem in manifest.hashes {
     let mut data = elem.split(':');
     let hash = data.next().unwrap().to_ascii_lowercase();
     let file = data.join(":");
-    
+    if let Some(callback) = cb {
+      callback((i as f32) / (n as f32), format!("Verifying {}", file));
+    }
     let mut md5hash = md5::Md5::new();
     std::io::copy(&mut std::fs::File::open(root_path.join(file))?, &mut md5hash)?;
     let res = md5hash.finalize();
     if hex::encode(res).to_ascii_lowercase() != hash {
       return Err(std::io::Error::from(std::io::ErrorKind::InvalidData));
     }
+    i += 1;
+  }
+
+  if let Some(callback) = cb {
+    callback(1., format!("Consolidating"));
   }
 
   for elem in manifest.delete {
@@ -98,7 +104,7 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
   }
 
   let gamemanifest = InstallManifest {
-    exec: manifest.newExec,
+    exec: manifest.new_exec,
     version: vec!(manifest.target.major as i32, manifest.target.minor as i32, manifest.target.patch as i32),
     dev: manifest.target.dev_build
   };
@@ -113,8 +119,14 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
     }
   }
 
+  let mut i = 0;
+  let n = to_del.len();
   for path in to_del {
+    if let Some(callback) = cb {
+      callback((i as f32) / (n as f32), format!("Cleaning Up"));
+    }
     std::fs::remove_file(path)?;
+    i += 1;
   }
   
   std::fs::remove_file(tmpflag)?;
@@ -124,6 +136,56 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
 fn dump_usage() {
   println!("patch path/to/files path/to/patch");
   println!("  Applies patch in-place");
+}
+
+pub fn from_dir(src_path: PathBuf, patch_path: PathBuf) {
+  let manifest: DeltaManifest = serde_json::from_str(&std::fs::read_to_string(patch_path.join("manifest.json")).unwrap()).unwrap();
+
+  let iter = walkdir::WalkDir::new(&patch_path).into_iter()
+    .filter(|x| x.is_ok())
+    .map(|x|x.unwrap())
+    .filter(|x|!x.path().ends_with("manifest.json"))
+    .filter(|x|!x.path().is_dir())
+    .map(|x| {
+      println!("{}", x.path().display());
+      (x.path().strip_prefix(&patch_path).unwrap().to_owned(), std::fs::read(src_path.join(x.path())).unwrap())
+    });
+
+    println!("{:?}", patch(manifest, &src_path, "ROLLBACK".to_owned(), iter, None));//.unwrap();
+}
+
+use std::io::{Seek, BufRead};
+pub fn from_zip<'a, T: Seek + BufRead>(src_path: PathBuf, patch_data: &'a mut zip::ZipArchive<T>, cb: Option<&dyn Fn(f32, String)>) -> Result<(), anyhow::Error> {
+  let count = patch_data.len();
+  if count == 0 {
+    return Err(anyhow::Error::msg("EMPTY ZIP"));
+  }
+
+  let manifest: DeltaManifest = {
+    let mut curs = std::io::Cursor::new(Vec::new());
+    std::io::copy(&mut patch_data.by_index(0)?, &mut curs)?;
+    serde_json::from_slice(&curs.into_inner()).map_err(|_|anyhow::Error::msg("Invalid zip manifest format"))?
+  };
+
+
+  let mut err_count = 0;
+  let iter = (1..count)
+    .map(|x| patch_data.by_index(x).and_then(|mut y| {
+      let mut d = Vec::new();
+      y.read_to_end(&mut d)?;
+      Ok((y.enclosed_name().unwrap().to_owned(), d))
+    })).map(|x| {
+      if x.is_err() { err_count += 1; }
+      x
+    }).filter(|x|x.is_ok())
+    .map(|x|x.unwrap());
+
+  println!("{:?}", patch(manifest, &src_path, "ROLLBACK".to_owned(), iter, cb)?);
+  if err_count != 0 {
+    Err(anyhow::anyhow!("Encountered errors unzipping zip"))
+  } else {
+    Ok(())
+  }
 }
 
 pub fn tool(mut args: std::env::Args) {
@@ -140,20 +202,13 @@ pub fn tool(mut args: std::env::Args) {
 
   let src_path = Path::new(&from).canonicalize().unwrap();
   let patch_path = Path::new(&patsch).canonicalize().unwrap();
-
-  let manifest: DeltaManifest = serde_json::from_str(&std::fs::read_to_string(patch_path.join("manifest.json")).unwrap()).unwrap();
     
   println!("{:?}", check_rollback(&src_path));
 
-  let iter = walkdir::WalkDir::new(&patch_path).into_iter()
-    .filter(|x| x.is_ok())
-    .map(|x|x.unwrap())
-    .filter(|x|!x.path().ends_with("manifest.json"))
-    .filter(|x|!x.path().is_dir())
-    .map(|x| {
-      println!("{}", x.path().display());
-      (x.path().strip_prefix(&patch_path).unwrap().to_owned(), std::fs::read(src_path.join(x.path())).unwrap())
-    });
-
-    println!("{:?}", patch(manifest, &src_path, "ROLLBACK".to_owned(), iter));//.unwrap();
+  if patch_path.is_dir() {
+    from_dir(src_path, patch_path);
+  } else if patch_path.is_file() && patch_path.extension().unwrap().to_string_lossy() == "zip" {
+    let mut zip = zip::ZipArchive::new(std::io::BufReader::new(std::fs::File::open(patch_path).unwrap())).unwrap();
+    from_zip(src_path, &mut zip, None).unwrap();
+  }
 }

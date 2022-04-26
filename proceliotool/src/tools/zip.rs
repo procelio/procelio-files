@@ -68,14 +68,13 @@ pub fn tool(mut args: std::env::Args) {
     }
     let folder = std::path::PathBuf::from(folder);
     let mut path = folder.clone();
-    let name = args.next().unwrap_or(path.file_stem().unwrap().to_str().unwrap().to_string());
-    if (name == "--help" || name == "-h") {
+    let name = args.next().unwrap_or(path.file_name().unwrap().to_str().unwrap().to_string());
+    if name == "--help" || name == "-h" {
         zip_usage();
         return;
     }
 
-    path.set_file_name(name);
-    path.set_extension("zip");
+    path.set_file_name(format!("{}.zip", name));
     println!("H {:?}", &path);
     let writer = std::fs::File::create(&path).unwrap();
     zip_dir(&folder, writer).unwrap();

@@ -37,12 +37,12 @@ pub fn tool(mut args: std::env::Args) {
             return;
         }
 
-        let mut imgsize = localization::lang_image_size();
+        let imgsize = localization::lang_image_size();
         let mut img = image::ImageBuffer::new(imgsize.0.into(), imgsize.1.into());
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            let r: f32 = (x as f32 * 255.0 / (imgsize.0 as f32));
-            let g: f32 = (y as f32 * 255.0 / (imgsize.1 as f32));
-            let b: f32 =((x + y) as f32 * 255.0 / ((imgsize.0 + imgsize.1) as f32));
+            let r: f32 = x as f32 * 255.0 / (imgsize.0 as f32);
+            let g: f32 = y as f32 * 255.0 / (imgsize.1 as f32);
+            let b: f32 =(x + y) as f32 * 255.0 / ((imgsize.0 + imgsize.1) as f32);
             *pixel = image::Rgba([r as u8, g as u8, b as u8, 255 as u8]);
         }
         let save = img.save(source.join("image.png"));

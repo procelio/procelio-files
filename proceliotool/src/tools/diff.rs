@@ -4,14 +4,15 @@ use std::collections::HashSet;
 use serde::{Serialize, Deserialize};
 use super::build_stuff::*;
 use md5::Digest;
-use std::convert::TryFrom;
-#[derive(Serialize, Deserialize)]
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DeltaManifest {
     pub hashes: Vec<String>,
     pub delete: Vec<String>,
     pub target: Version,
     pub source: Version,
-    pub newExec: String
+    #[serde(alias = "newExec")]
+    pub new_exec: String
 }
 
 fn dump_usage() {
@@ -98,7 +99,7 @@ pub fn run_diff(from_root: &Path, to_root: &Path, patch_root: &Path,
     for path in dst_only_files {
         println!("Adding new {}", path.to_str().unwrap());
         let mut src = std::fs::File::open(to_root.join(&path)).unwrap();
-        let mut newpath = path.to_path_buf();
+        let newpath = path.to_path_buf();
         let dst_path = patch_root.join(&newpath);
         match dst_path.parent() {
             None => {},
@@ -176,7 +177,7 @@ pub fn tool(mut args: std::env::Args) {
         delete: Vec::new(),
         target: dst_version,
         source: src_version,
-        newExec: dst_manifest.exec
+        new_exec: dst_manifest.exec
     };
     run_diff(src_path, dst_path, patch_dir, from_files, to_files, both_files, &mut manifest);
 }

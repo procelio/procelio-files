@@ -1,10 +1,9 @@
-use procelio_files::files::robot::robot;
 use std::io::{Read, Write, BufRead};
-use reqwest::StatusCode;
 use serde::{Serialize, Deserialize};
 use procelio_files::files::robot::robot::Robot;
-use std::convert::{From, TryFrom};
-#[derive(Clone,Debug, Serialize, Deserialize)]
+use std::convert::{TryFrom};
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct UserResponse {
     pub id: i64,
     pub username: String,
@@ -33,7 +32,7 @@ fn display(count: &str, bot: &Robot) -> String {
 }
 
 pub fn tool(mut args: std::env::Args) {
-    let mut userID: i32 = 1;
+    let mut user_id: i32 = 1;
     let mut read_token: String = "".to_owned();
     let mut write_token: String = "".to_owned();
     let mut autobuy: bool = false;
@@ -46,7 +45,7 @@ pub fn tool(mut args: std::env::Args) {
         path.push("login.session");
         if let Ok(f) = std::fs::File::open(&path) {
             let lines = std::io::BufReader::new(f).lines().map(|x|x.unwrap()).collect::<Vec<String>>();
-            userID = lines[1].parse().unwrap();
+            user_id = lines[1].parse().unwrap();
             read_token = lines[3].clone();
             write_token = lines[4].clone();
             println!("Procelio session file {:?} loaded", path);
@@ -64,7 +63,7 @@ pub fn tool(mut args: std::env::Args) {
             return;
         }
         if arg == "--user" {
-            userID = args.next().unwrap().parse().unwrap();
+            user_id = args.next().unwrap().parse().unwrap();
         } else if arg == "--read" {
             read_token = args.next().unwrap();
         } else if arg == "--write" {
@@ -76,14 +75,14 @@ pub fn tool(mut args: std::env::Args) {
 
     let client = reqwest::blocking::Client::new();
 
-    let user_data: UserResponse = client.get(format!("https://accounts.procelio.com:6676/users/{}", userID))
+    let user_data: UserResponse = client.get(format!("https://accounts.procelio.com:6676/users/{}", user_id))
         .header("Authorization", format!("Bearer {}", read_token))
         .send().unwrap().json().unwrap();
     let mut server_bots: Vec<Robot> = Vec::new();
     let mut local_bots: Vec<Robot> = Vec::new();
 
     for i in 0..user_data.num_garages {
-        let byts = client.get(format!("https://accounts.procelio.com:6676/users/{}/robots/{}", userID, i))
+        let byts = client.get(format!("https://accounts.procelio.com:6676/users/{}/robots/{}", user_id, i))
         .header("Authorization", format!("Bearer {}", read_token))
         .send().unwrap().bytes().unwrap();
         server_bots.push(Robot::try_from(&byts[..]).unwrap());
@@ -166,7 +165,7 @@ pub fn tool(mut args: std::env::Args) {
                 continue;
             };
             let bot = Robot::new();
-            let data = client.patch(format!("https://accounts.procelio.com:6676/users/{}/robots/{}?autobuy={}", userID, num, autobuy))
+            let data = client.patch(format!("https://accounts.procelio.com:6676/users/{}/robots/{}?autobuy={}", user_id, num, autobuy))
                 .header("Authorization", format!("Bearer {}", write_token))
                 .body(bot.compile().unwrap())
                 .send().unwrap();
@@ -188,7 +187,7 @@ pub fn tool(mut args: std::env::Args) {
         }
         if buf.starts_with("upload") {
             let num = if let Some(n) = data.get(2).and_then(|x|x.parse::<u32>().ok()) {
-                if (n < 0 || n as usize > server_bots.len()) {
+                if n as usize > server_bots.len() {
                     println!("Bad command (A)!");
                     continue;
                 }
@@ -214,7 +213,7 @@ pub fn tool(mut args: std::env::Args) {
                 continue;
             };
             
-            let data = client.patch(format!("https://accounts.procelio.com:6676/users/{}/robots/{}?autobuy={}", userID, num, autobuy))
+            let data = client.patch(format!("https://accounts.procelio.com:6676/users/{}/robots/{}?autobuy={}", user_id, num, autobuy))
                 .header("Authorization", format!("Bearer {}", write_token))
                 .body(local_bots.get(slot as usize).unwrap().compile().unwrap())
                 .send().unwrap();
