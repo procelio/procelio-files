@@ -1,10 +1,12 @@
 use image::GenericImageView;
 
-use procelio_files::files::localization::localization;
-use std::io::{Read, Write};
+use itertools::Itertools;
+use procelio_files::files::localization::localization::{self, TextElement};
+use std::collections::HashSet;
+use std::io::{Read, Write, BufRead};
 
 fn lang_usage() {
-    println!("lang path/to/language/folder");
+    println!("lang path/to/language/folder [path/to/entries]");
     println!("  creates a new language (if given folder is empty), OR converts JSON/PNG image data to a compiled language file");
 }
 
@@ -14,8 +16,18 @@ pub fn tool(mut args: std::env::Args) {
         lang_usage();
         return;
     }
-
+    let config = args.next().unwrap_or("entries.txt".to_owned());
     let source = std::path::Path::new(&arg);
+    let mut cfgrawpath = std::path::Path::new(&config).to_owned();
+    if !cfgrawpath.exists() {
+        cfgrawpath = source.join("..").join(&config);
+    }
+    if !cfgrawpath.exists() {
+        eprintln!("Config file does not exist {}", cfgrawpath.display());
+        return;
+    }
+    let entries: std::collections::HashSet<String> = std::io::BufReader::new(std::fs::File::open(cfgrawpath).unwrap()).lines().map(|x|x.unwrap()).collect();
+
     if !source.exists() || !source.join("language.json").exists() || !source.join("image.png").exists() {
         println!("Language data does not exist; creating");
         let cdir = std::fs::create_dir_all(source);
@@ -29,7 +41,10 @@ pub fn tool(mut args: std::env::Args) {
             return;
         }
 
-        let t = localization::Translation::new();
+        let mut t = localization::Translation::new();
+        for elem in entries {
+            t.language_elements.push(TextElement::new(elem));
+        }
         let serdestr = serde_json::to_string_pretty(&t).unwrap();
         let written = ff1.unwrap().write_all(serdestr.as_bytes());
         if let Err(e) = written {
@@ -97,6 +112,37 @@ pub fn tool(mut args: std::env::Args) {
         Err(e) => { eprintln!("File was not valid JSON: {:#?}", e); return; },
         Ok(o) => o
     };
+
+    let existing: HashSet<String> = translate.language_elements.iter().map(|x|x.name.to_owned()).collect();
+    let elen = entries.len();
+    if elen != existing.iter().count() || elen != entries.union(&existing).into_iter().count()
+    {
+        let ff1 = std::fs::File::create(source.join("language.json"));
+        if ff1.is_err() {
+            eprintln!("Unable to save langfile: {:#?}", ff1.err().unwrap());
+            return;
+        }
+
+        for elem in &entries {
+            if !existing.contains(elem) {
+                translate.language_elements.push(TextElement::new(elem.to_owned()))
+            }
+        }
+
+        translate.language_elements = translate.language_elements.into_iter()
+            .filter(|x|entries.contains(&x.name))
+            .sorted_by(|a,b| Ord::cmp(&a.name,&b.name))
+            .collect();
+        
+        let serdestr = serde_json::to_string_pretty(&translate).unwrap();
+        let written = ff1.unwrap().write_all(serdestr.as_bytes());
+        if let Err(e) = written {
+            eprintln!("Unable to write langfile: {:#?}", e);
+            return;
+        }
+        println!("Updated langfile");
+        return;
+    }
 
     translate.language_image = imgoutbytes;
 

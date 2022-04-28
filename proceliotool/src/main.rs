@@ -1,4 +1,5 @@
-mod tools;
+use proceliotool::tools;
+
 fn usage() {
     println!("{} COMMAND ARGS", std::env::current_exe().unwrap_or(std::path::PathBuf::from("./program")).display());
     println!("Commands: ");

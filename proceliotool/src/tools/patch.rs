@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use md5::Digest;
 use super::diff::DeltaManifest;
 use std::io::Read;
+
 #[derive(Serialize, Deserialize)]
 pub struct InstallManifest {
     pub exec: String,
@@ -18,6 +19,7 @@ pub fn patch_bytes(from: &[u8], patch: &[u8]) -> Vec<u8> {
 
 pub fn check_rollback(dir: &std::path::PathBuf) -> Result<(), anyhow::Error> {
   let tmpflag = dir.join("rollback");
+  println!("Checking for rollback file {}: {}", tmpflag.display(), tmpflag.is_file());
   if !tmpflag.is_file() {
       return Ok(());
   }
@@ -77,15 +79,16 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
   }
 
   i = 0;
+
   for elem in manifest.hashes {
     let mut data = elem.split(':');
     let hash = data.next().unwrap().to_ascii_lowercase();
     let file = data.join(":");
     if let Some(callback) = cb {
-      callback((i as f32) / (n as f32), format!("Verifying {}", file));
+      callback((i as f32) / (n as f32), format!("Verifying {}", &file));
     }
     let mut md5hash = md5::Md5::new();
-    std::io::copy(&mut std::fs::File::open(root_path.join(file))?, &mut md5hash)?;
+    std::io::copy(&mut std::fs::File::open(root_path.join(&file))?, &mut md5hash)?;
     let res = md5hash.finalize();
     if hex::encode(res).to_ascii_lowercase() != hash {
       return Err(std::io::Error::from(std::io::ErrorKind::InvalidData));
@@ -167,18 +170,22 @@ pub fn from_zip<'a, T: Seek + BufRead>(src_path: PathBuf, patch_data: &'a mut zi
     serde_json::from_slice(&curs.into_inner()).map_err(|_|anyhow::Error::msg("Invalid zip manifest format"))?
   };
 
-
-  let mut err_count = 0;
-  let iter = (1..count)
-    .map(|x| patch_data.by_index(x).and_then(|mut y| {
-      let mut d = Vec::new();
-      y.read_to_end(&mut d)?;
-      Ok((y.enclosed_name().unwrap().to_owned(), d))
-    })).map(|x| {
-      if x.is_err() { err_count += 1; }
-      x
-    }).filter(|x|x.is_ok())
-    .map(|x|x.unwrap());
+  let iter = (1..count).map(|x| {
+    let mut d = patch_data.by_index(x).unwrap();
+    if d.is_file() {
+      let mut v: Vec<u8> = Vec::new();
+      d.read_to_end(&mut v).unwrap();
+      if let Some(s) = d.enclosed_name() {
+        Some((src_path.join(s), v))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }).filter(|x|x.is_some())
+  .map(|x|x.unwrap());
+  let err_count = 0;
 
   println!("{:?}", patch(manifest, &src_path, "ROLLBACK".to_owned(), iter, cb)?);
   if err_count != 0 {
@@ -208,7 +215,7 @@ pub fn tool(mut args: std::env::Args) {
   if patch_path.is_dir() {
     from_dir(src_path, patch_path);
   } else if patch_path.is_file() && patch_path.extension().unwrap().to_string_lossy() == "zip" {
-    let mut zip = zip::ZipArchive::new(std::io::BufReader::new(std::fs::File::open(patch_path).unwrap())).unwrap();
+    let mut zip = zip::ZipArchive::new(Box::new(std::io::BufReader::new(std::fs::File::open(patch_path).unwrap()))).unwrap();
     from_zip(src_path, &mut zip, None).unwrap();
   }
 }
