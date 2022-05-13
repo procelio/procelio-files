@@ -332,3 +332,25 @@ impl Robot {
         Ok(file.into_inner())
     }
 }
+
+impl From<Robot> for JsonRobot {
+    fn from(bot: Robot) -> Self {
+        JsonRobot {
+            name: std::str::from_utf8(&bot.bot_name).unwrap().to_owned(),
+            metadata: bot.metadata,
+            parts: bot.parts.iter().map(|x| JsonPart {
+                id: x.id,
+                pos: [x.pos_x, x.pos_y, x.pos_z],
+                rot: x.rotation,
+                color: [x.color_r, x.color_g, x.color_b],
+                alpha: x.alpha_channel,
+                extra_data: x.extra_bytes.clone()
+            }).collect(),
+            cosmetics: bot.cosmetics.iter().map(|x| JsonCosmetic {
+                id: x.id,
+                part_on: x.on_part,
+                extra_data: x.extra_bytes.clone()
+            }).collect()
+        }
+    }
+}

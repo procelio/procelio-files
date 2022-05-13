@@ -42,6 +42,7 @@ pub fn tool(mut args: std::env::Args) {
         path.push("LocalLow");
         path.push("Procul Games");
         path.push("Procelio");
+        path.push("cached");
         path.push("login.session");
         if let Ok(f) = std::fs::File::open(&path) {
             let lines = std::io::BufReader::new(f).lines().map(|x|x.unwrap()).collect::<Vec<String>>();

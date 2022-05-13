@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use fnv;
-use crate::files::robot::robot::Robot;
+use crate::files::robot::robot::{Robot, JsonPart};
 pub const INVENTORY_MAGIC_NUMBER: u32 = 0xC50CB115; // 15B10CC5 "IsBloccs"
 const CURRENT_VERSION: u32 = 3;
 
@@ -82,6 +82,23 @@ impl From<Robot> for Inventory {
             inv.add_cosmetic(elem.id, 1);
         });
         inv
+    }
+}
+
+impl From<Inventory> for JsonInventory {
+    fn from(inv: Inventory) -> Self {
+        JsonInventory {
+            parts: inv.parts.into_iter().map(|x| JsonPartCount {
+                id: x.0,
+                count: x.1,
+                name: "?".to_owned()
+            }).collect(),
+            cosmetics: inv.cosmetics.into_iter().map(|x| JsonPartCount {
+                id: x.0,
+                count: x.1,
+                name: "?".to_owned()
+            }).collect()
+        }
     }
 }
 

@@ -55,7 +55,7 @@ pub fn tool(mut args: std::env::Args) {
             match sf {
                 Err(e) => {println!("Unable to parse file: {}", e);},
                 Ok(s) => {
-                    match serde_json::to_string_pretty(&s) {
+                    match serde_json::to_string_pretty(&inventory::inventory::JsonInventory::from(s)) {
                         Err(e2) => {println!("Unable to serialize: {}", e2);},
                         Ok(s2) => {println!("{}", s2);}
                     }
@@ -71,7 +71,7 @@ pub fn tool(mut args: std::env::Args) {
             match sf {
                 Err(e) => {println!("Unable to parse file: {}", e);},
                 Ok(s) => {
-                    match serde_json::to_string_pretty(&s) {
+                    match serde_json::to_string_pretty(&robot::robot::JsonRobot::from(s)) {
                         Err(e2) => {println!("Unable to serialize: {}", e2);},
                         Ok(s2) => {println!("{}", s2);}
                     }
