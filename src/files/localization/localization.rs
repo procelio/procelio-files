@@ -7,7 +7,7 @@ use std::io::{Cursor, Read, Seek, SeekFrom, Write};
 use std::convert::TryFrom;
 
 pub const LOCALIZATION_MAGIC_NUMBER: u32 = 0x10CA112E; // "LOCALIZE"
-const CURRENT_VERSION: u32 = 1;
+const CURRENT_VERSION: u32 = 2;
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct TextColor {
@@ -38,7 +38,6 @@ pub fn lang_image_size() -> (u16, u16) {
     (48, 24)
 }
 
-
 // All of the data for a single translated UI text element
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TextElement {
@@ -57,7 +56,7 @@ pub struct TextElement {
     #[serde(default, skip_serializing_if = "is_default")]
     pub alignment: u8,
     #[serde(flatten, default, skip_serializing_if = "is_default")]
-    pub color: TextColor
+    pub color: Option<TextColor>
 }
 
 // The "full" data for a translation
@@ -127,9 +126,15 @@ impl Translation {
         }
         file.write_all(&u8::to_be_bytes(modifications))?;
         file.write_all(&u8::to_be_bytes(text.alignment))?;
-        file.write_all(&u8::to_be_bytes(text.color.color.0))?;
-        file.write_all(&u8::to_be_bytes(text.color.color.1))?;
-        file.write_all(&u8::to_be_bytes(text.color.color.2))?;
+        if let Some(x) = &text.color {
+            file.write_all(&u8::to_be_bytes(1))?;
+            file.write_all(&u8::to_be_bytes(x.color.0))?;
+            file.write_all(&u8::to_be_bytes(x.color.1))?;
+            file.write_all(&u8::to_be_bytes(x.color.2))?;
+        } else {
+            file.write_all(&u8::to_be_bytes(0))?;
+        }
+
         Ok(())
     }
 
@@ -232,11 +237,18 @@ impl Translation {
             file.read_exact(&mut buf1)?;
             let algn = buf1[0];
             file.read_exact(&mut buf1)?;
-            let r = buf1[0];
-            file.read_exact(&mut buf1)?;
-            let g = buf1[0];
-            file.read_exact(&mut buf1)?;
-            let b = buf1[0];
+            let color = if buf1[0] == 1 {
+                file.read_exact(&mut buf1)?;
+                let r = buf1[0];
+                file.read_exact(&mut buf1)?;
+                let g = buf1[0];
+                file.read_exact(&mut buf1)?;
+                let b = buf1[0];
+                Some(TextColor { color: (r, g, b) })
+            } else {
+                None
+            };
+
 
             translate.language_elements.push(TextElement {
                 name: name,
@@ -247,7 +259,7 @@ impl Translation {
                 underline: under,
                 strikethrough: strike,
                 alignment: algn,
-                color: TextColor { color: (r, g, b) }
+                color: color
             });
         }
         Ok(())
@@ -260,8 +272,6 @@ impl TryFrom<&[u8]> for Translation {
     type Error = std::io::Error;
     fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
         let mut buf4 = [0u8; 4];
-        let mut buf2 = [0u8; 2];
-        let mut buf1 = [0u8; 1];
         let mut blank = Translation::new();
         let mut file = Cursor::new(data);
         file.read_exact(&mut buf4)?;

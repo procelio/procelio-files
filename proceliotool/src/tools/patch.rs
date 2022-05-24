@@ -90,7 +90,9 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
     let mut md5hash = md5::Md5::new();
     std::io::copy(&mut std::fs::File::open(root_path.join(&file))?, &mut md5hash)?;
     let res = md5hash.finalize();
-    if hex::encode(res).to_ascii_lowercase() != hash {
+    let encoded = hex::encode(res).to_ascii_lowercase();
+    if encoded != hash {
+      println!("{}: {}  {}", file, encoded, hash);
       return Err(std::io::Error::from(std::io::ErrorKind::InvalidData));
     }
     i += 1;
