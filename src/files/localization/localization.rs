@@ -38,6 +38,7 @@ pub fn lang_image_size() -> (u16, u16) {
     (48, 24)
 }
 
+
 // All of the data for a single translated UI text element
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TextElement {
@@ -237,6 +238,85 @@ impl Translation {
             file.read_exact(&mut buf1)?;
             let algn = buf1[0];
             file.read_exact(&mut buf1)?;
+            let r = buf1[0];
+            file.read_exact(&mut buf1)?;
+            let g = buf1[0];
+            file.read_exact(&mut buf1)?;
+            let b = buf1[0];
+
+            translate.language_elements.push(TextElement {
+                name: name,
+                value: value,
+                size: text_size,
+                bold,
+                italic,
+                underline: under,
+                strikethrough: strike,
+                alignment: algn,
+                color: Some(TextColor { color: (r, g, b) })
+            });
+        }
+        Ok(())
+    }
+
+    fn from_v2(translate: &mut Translation, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+        let mut buf4 = [0u8; 4];
+        let mut buf2 = [0u8; 2];
+        let mut buf1 = [0u8; 1];
+        file.seek(std::io::SeekFrom::Current(8))?; // skip metadata
+        
+        println!("reading version at  {}", file.position());
+        file.read_exact(&mut buf4)?;
+        translate.version = u32::from_be_bytes(buf4);
+
+
+        file.read_exact(&mut buf2)?;
+        let name_size = u16::from_be_bytes(buf2);
+        let mut bufname = vec!(0u8; name_size.into());
+        file.read_exact(&mut bufname)?;
+        translate.anglicized_name = String::from_utf8(bufname).unwrap();
+        file.read_exact(&mut buf2)?;
+        let name_size = u16::from_be_bytes(buf2);
+        let mut bufname = vec!(0u8; name_size.into());
+        file.read_exact(&mut bufname)?;
+        translate.native_name = String::from_utf8(bufname).unwrap();
+        file.read_exact(&mut buf2)?;
+        let name_size = u16::from_be_bytes(buf2);
+        let mut bufname = vec!(0u8; name_size.into());
+        file.read_exact(&mut bufname)?;
+        translate.authors = String::from_utf8(bufname).unwrap();
+
+        println!("reading image at {} -- {}", file.position(), lang_image_bytes());
+        let mut imgbuf = vec!(0u8; lang_image_bytes());
+        file.read_exact(&mut imgbuf)?;
+        translate.language_image = imgbuf;
+
+        file.read_exact(&mut buf4)?;
+        let n = u32::from_be_bytes(buf4);
+        for _ in 0..n {
+            file.read_exact(&mut buf2)?;
+            let name_size = u16::from_be_bytes(buf2);
+            let mut bufname = vec!(0u8; name_size.into());
+            file.read_exact(&mut bufname)?;
+            let name = String::from_utf8(bufname).unwrap();
+
+            file.read_exact(&mut buf2)?;
+            let name_size = u16::from_be_bytes(buf2);
+            let mut bufname = vec!(0u8; name_size.into());
+            file.read_exact(&mut bufname)?;
+            let value = String::from_utf8(bufname).unwrap();
+
+            file.read_exact(&mut buf2)?;
+            let text_size = u16::from_be_bytes(buf2);
+
+            file.read_exact(&mut buf1)?;
+            let bold = (buf1[0] & 0x1) > 0;
+            let italic = (buf1[0] & 0x2) > 0;
+            let under = (buf1[0] & 0x4) > 0;
+            let strike = (buf1[0] & 0x8) > 0;
+            file.read_exact(&mut buf1)?;
+            let algn = buf1[0];
+            file.read_exact(&mut buf1)?;
             let color = if buf1[0] == 1 {
                 file.read_exact(&mut buf1)?;
                 let r = buf1[0];
@@ -264,7 +344,6 @@ impl Translation {
         }
         Ok(())
     }
-
 }
 
 
@@ -272,6 +351,8 @@ impl TryFrom<&[u8]> for Translation {
     type Error = std::io::Error;
     fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
         let mut buf4 = [0u8; 4];
+        let mut buf2 = [0u8; 2];
+        let mut buf1 = [0u8; 1];
         let mut blank = Translation::new();
         let mut file = Cursor::new(data);
         file.read_exact(&mut buf4)?;
@@ -286,6 +367,7 @@ impl TryFrom<&[u8]> for Translation {
         let version = u32::from_be_bytes(buf4);
         let res: Result<(), std::io::Error> = match version {
             1 => Translation::from_v1(&mut blank, &mut file),
+            2 => Translation::from_v2(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Version was invalid: {}", version),
