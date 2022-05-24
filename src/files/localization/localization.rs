@@ -11,17 +11,7 @@ const CURRENT_VERSION: u32 = 2;
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct TextColor {
-    #[serde(default="white_text")]
     pub color: (u8, u8, u8)
-}
-
-// serde needs a function to get the default 
-fn white_text() -> (u8, u8, u8) {(255, 255, 255)}
-
-impl Default for TextColor {
-    fn default() -> TextColor {
-        TextColor { color: white_text() }
-    }
 }
 
 // Used so serde doesn't serialize default text values (save vertical space)
@@ -97,7 +87,7 @@ impl Translation {
             anglicized_name: "Anglicized Name".to_owned(),
             native_name: "Local Name".to_owned(),
             authors: "Authors".to_owned(),
-            version: 1,
+            version: CURRENT_VERSION,
             language_image: Vec::new(),
             language_elements: Vec::new()
         }
