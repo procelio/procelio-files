@@ -101,7 +101,11 @@ pub fn tool(mut args: std::env::Args) {
         local_bots.clear();
         
         for path in std::fs::read_dir(".").unwrap() {
-            let mut file = std::fs::File::open(&path.unwrap().path()).unwrap();
+            let pp = path.unwrap().path();
+            if !std::path::Path::is_file(&pp) {
+                continue;
+            }
+            let mut file = std::fs::File::open(&pp).unwrap();
             if file.metadata().unwrap().file_size() > 64000000 {
                 continue;
             }

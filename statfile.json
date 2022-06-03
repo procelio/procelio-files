@@ -110,7 +110,7 @@
       "health": 1800,
       "mass": 50,
       "cost": 450,
-      "cpuCost": 16
+      "cpuCost": 14
     },
     {
       "id": 15,
@@ -150,7 +150,7 @@
       "health": 300,
       "mass": 20,
       "cost": 300,
-      "cpuCost": 10
+      "cpuCost": 3
     },
 	  {
       "id": 22,
@@ -158,7 +158,7 @@
       "health": 400,
       "mass": 30,
       "cost": 500,
-      "cpuCost": 14
+      "cpuCost": 5
     },
 	  {
       "id": 23,
@@ -166,7 +166,7 @@
       "health": 200,
       "mass": 18,
       "cost": 350,
-      "cpuCost": 8
+      "cpuCost": 4
     },
 	{
       "id": 24,
@@ -174,7 +174,7 @@
       "health": 300,
       "mass": 28,
       "cost": 650,
-      "cpuCost": 12
+      "cpuCost": 6
     },
     {
       "id": 25,
@@ -182,7 +182,7 @@
       "health": 300,
       "mass": 35,
       "cost": 725,
-      "cpuCost": 12
+      "cpuCost": 8
     },
     {
       "id": 26,
@@ -190,7 +190,7 @@
       "health": 1300,
       "mass": 100,
       "cost": 75,
-      "cpuCost": 12
+      "cpuCost": 8
     },
     {
       "id": 27,
@@ -199,7 +199,7 @@
       "mass": 25,
       "cost": 800,
       "cpuCost": 14,
-      "thrust": 45000
+      "thrust": 24000
     },
     {
       "id": 28,
@@ -229,9 +229,9 @@
       "id": 18,
       "name": "LaserGun",
       "health": 2900,
-      "mass": 40,
+      "mass": 45,
       "cost": 1200,
-      "cpuCost": 42,
+      "cpuCost": 40,
       "rotationSpeed": 360
     },
 	  {
@@ -249,25 +249,25 @@
       "health": 2800,
       "mass": 45,
       "cost": 1500,
-      "cpuCost": 40,
+      "cpuCost": 42,
       "rotationSpeed": 270
     },
 	  {
       "id": 33,
       "name": "AlphaHealgun",
       "health": 3600,
-      "mass": 45,
+      "mass": 40,
       "cost": 1200,
-      "cpuCost": 36,
+      "cpuCost": 30,
       "rotationSpeed": 720
     },
 	  {
       "id": 34,
       "name": "AlphaSecondaryMines",
       "health": 2200,
-      "mass": 25,
+      "mass": 20,
       "cost": 1500,
-      "cpuCost": 28
+      "cpuCost": 30
     },
 	  {
       "id": 35,
@@ -281,26 +281,26 @@
       "id": 36,
       "name": "AlphaSecondaryRocket",
       "health": 1200,
-      "mass": 25,
+      "mass": 30,
       "cost": 1500,
-      "cpuCost": 40,
+      "cpuCost": 32,
       "rotationSpeed": 270
     },
 	  {
       "id": 37,
       "name": "AlphaSecondarySmoke",
       "health": 2800,
-      "mass": 45,
+      "mass": 25,
       "cost": 1500,
-      "cpuCost": 40
+      "cpuCost": 20
     },
 	  {
       "id": 38,
       "name": "AlphaSecondaryBlade",
       "health": 1400,
-      "mass": 22,
+      "mass": 32,
       "cost": 1500,
-      "cpuCost": 24
+      "cpuCost": 26
     },
     {
       "id": 39,
@@ -361,22 +361,22 @@
       "id": 44,
       "name": "Helium1x1x2",
       "health": 150,
-      "mass": 20,
+      "mass": 15,
       "cost": 400,
       "cpuCost": 6,
-      "lift": 80,
-      "spec1_minlift": 40,
+      "lift": 120,
+      "spec1_minlift": 60,
       "spec2_ctrlspeed": 40
     },
     {
       "id": 45,
       "name": "Helium1x2x3",
       "health": 400,
-      "mass": 40,
+      "mass": 30,
       "cost": 500,
       "cpuCost": 10,
-      "lift": 240,
-      "spec1_minlift": 120,
+      "lift": 300,
+      "spec1_minlift": 150,
       "spec2_ctrlspeed": 80
     },
     {
@@ -386,8 +386,8 @@
       "mass": 80,
       "cost": 600,
       "cpuCost": 12,
-      "lift": 640,
-      "spec1_minlift": 320,
+      "lift": 700,
+      "spec1_minlift": 350,
       "spec2_ctrlspeed": 200
     },
     {
@@ -396,9 +396,9 @@
       "health": 2600,
       "mass": 180,
       "cost": 700,
-      "cpuCost": 20,
-      "lift": 1800,
-      "spec1_minlift": 900,
+      "cpuCost": 25,
+      "lift": 2000,
+      "spec1_minlift": 1000,
       "spec2_ctrlspeed": 120
     },
     {
@@ -407,9 +407,9 @@
       "health": 4800,
       "mass": 360,
       "cost": 800,
-      "cpuCost": 28,
-      "lift": 3840,
-      "spec1_minlift": 1920,
+      "cpuCost": 35,
+      "lift": 4200,
+      "spec1_minlift": 2100,
       "spec2_ctrlspeed": 96
     },
     {
@@ -418,21 +418,21 @@
       "health": 2800,
       "mass": 45,
       "cost": 1500,
-      "cpuCost": 40
+      "cpuCost": 28
     },
     {
       "id": 50,
       "name": "Radar",
       "health": 2800,
-      "mass": 45,
+      "mass": 15,
       "cost": 1500,
-      "cpuCost": 40
+      "cpuCost": 30
     },
     {
       "id": 51,
       "name": "RadarJammer",
       "health": 2800,
-      "mass": 45,
+      "mass": 15,
       "cost": 1500,
       "cpuCost": 40
     },
@@ -501,44 +501,45 @@
       "health": 2200,
       "mass": 45,
       "cost": 350,
-      "cpuCost": 12
+      "cpuCost": 10
     }
   ],
   "attacks": [
     {
       "id": 1,
       "name": "alphaSMGProjectile",
-      "damage": 300
+      "damage": 350
     },
     {
       "id": 2,
       "name": "alphaPlasmaProjectile",
-      "damage": 1100
+      "damage": 750
     },
     {
       "id": 3,
       "name": "alphaRailgunProjectile",
-      "damage": 3000
+      "damage": 4000
     },
     {
       "id": 4,
       "name": "nanoWeapon",
-      "damage": 250
+      "damage": 200
     },
     {
       "id": 5,
       "name": "mine projectile",
-      "damage": 3000
+      "damage": 600
     },
     {
       "id": 6,
       "name": "rocket launch",
-      "damage": 900
+      "damage": 400
     },
     {
       "id": 7,
       "name": "melee tesla",
-      "damage": 3000
+      "damage": 2000
     }
-  ]
+  ],
+  "cosmetics": [ ]
 }
