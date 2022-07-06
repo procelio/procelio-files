@@ -312,12 +312,12 @@ impl StatsFile {
         file.read_exact(&mut buf4)?;
         let num_cosmetics = u32::from_be_bytes(buf4);
         for _ in 0..num_cosmetics {
-            file.read_exact(&mut buf4);
+            file.read_exact(&mut buf4)?;
             let cosm_id = u32::from_be_bytes(buf4);
-            file.read_exact(&mut buf1);
+            file.read_exact(&mut buf1)?;
             let data_len = u8::from_be_bytes(buf1);
             let mut n = vec![0, data_len];
-            file.read_exact(&mut n);
+            file.read_exact(&mut n)?;
             stats.cosmetics.data.insert(cosm_id, n);
         }
 
@@ -351,7 +351,7 @@ impl StatsFile {
         for kvp in &stat.data {
             file.write_all(&u32::to_be_bytes(*kvp.0))?;
             file.write_all(&u8::to_be_bytes(kvp.1.len() as u8))?;
-            file.write_all(&kvp.1);
+            file.write_all(&kvp.1)?;
         }
 
         Ok(())
@@ -360,11 +360,11 @@ impl StatsFile {
     pub fn compile(self: &StatsFile) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
         file.write_all(&u32::to_be_bytes(STATFILE_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
-        file.write_all(&u32::to_be_bytes(2))?; // TODO fix CURRENT_VERSION))?;
+        file.write_all(&u32::to_be_bytes(CURRENT_VERSION))?;
 
         StatsFile::compile_sub_flag(&self.blocks, &mut file)?;
         StatsFile::compile_sub_flag(&self.attacks, &mut file)?;
-     //   StatsFile::compile_sub_bin(&self.cosmetics, &mut file)?;
+        StatsFile::compile_sub_bin(&self.cosmetics, &mut file)?;
         Ok(file.into_inner())
     }
 }
