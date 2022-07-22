@@ -541,5 +541,27 @@
       "damage": 1800
     }
   ],
-  "cosmetics": [ ]
+  "cosmetics": [
+    {
+      "id": 1,
+      "name": "EP Red",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 20,
+      "config": []
+    },
+    {
+      "id": 2,
+      "name": "EP Green",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 10,
+      "config": []
+    },
+    {
+      "id": 3,
+      "name": "EP Yellow",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 10,
+      "config": []
+    }
+  ]
 }

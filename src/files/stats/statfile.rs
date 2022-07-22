@@ -27,11 +27,15 @@ pub const SPECIAL_FLAG_1: u8 = 200; // Special per-part usage 0
 pub const SPECIAL_FLAG_2: u8 = 201; // Special per-part usage 1
 pub const SPECIAL_FLAG_3: u8 = 202; // Special per-part usage 2
 
+pub const MODIFIER_COST: u8 = 250;
+pub const MODIFIER_PREMIUM_COST: u8 = 251;
+
 #[derive(Clone, Serialize)]
 pub struct StatsFile {
     pub blocks: FlagStats,
     pub attacks: FlagStats,
-    pub cosmetics: BinaryConfig
+    pub cosmetics: FlagStats,
+    pub cosmetics_bin: BinaryConfig
 }
 
 #[derive(Clone)]
@@ -113,6 +117,8 @@ pub struct JsonAttackStats {
 pub struct JsonCosmeticStats {
     pub id: u32,
     pub name: String,
+    #[serde(flatten)]
+    pub flags: HashMap<String, i32>,
     pub config: Vec<u8>
 }
 
@@ -132,6 +138,8 @@ fn flag_id(flag: &str) -> Option<u8> {
         "functionHealth" => Some(USABILITY_HEALTH),
         "damage" => Some(DAMAGE_FLAG),
         "lift" => Some(LIFT_FLAG),
+        "cosmeticCost" => Some(MODIFIER_COST),
+        "cosmeticPremiumCost" => Some(MODIFIER_PREMIUM_COST),
         x => {
             if x.starts_with("spec1") {
                 Some(SPECIAL_FLAG_1)
@@ -165,6 +173,8 @@ fn flag_name(flag: u8) -> &'static str {
         SPECIAL_FLAG_1 => "spec1",
         SPECIAL_FLAG_2 => "spec2",
         SPECIAL_FLAG_3 => "spec3",
+        MODIFIER_COST => "cosmeticCost",
+        MODIFIER_PREMIUM_COST => "cosmeticPremiumCost",
         _ => "err"
     }
 }
@@ -226,8 +236,18 @@ impl From<JsonStatsFile> for StatsFile {
             });
             sf.attacks.data.insert(elem.id, map);
         });
+        file.cosmetics.iter().for_each(|elem| {
+            let mut map = FnvHashMap::default();
+            elem.flags.iter().for_each(|flag| {
+                let idn = flag_id(flag.0);
+                if let Some(x) = idn {
+                    map.insert(x, *flag.1);
+                }
+            });
+            sf.cosmetics.data.insert(elem.id, map);
+        });
         file.cosmetics.into_iter().for_each(|elem| {
-            sf.cosmetics.data.insert(elem.id, elem.config);
+            sf.cosmetics_bin.data.insert(elem.id, elem.config);
         });
         sf
     }
@@ -316,9 +336,26 @@ impl StatsFile {
             let cosm_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
             let data_len = u8::from_be_bytes(buf1);
-            let mut n = vec![0, data_len];
+
+            let mut m = FnvHashMap::default();
+
+            if data_len >= 8 {
+                file.read_exact(&mut buf4)?;
+                let cost = i32::from_be_bytes(buf4);
+                file.read_exact(&mut buf4)?;
+                let prem_cost = i32::from_be_bytes(buf4);
+
+                m.insert(MODIFIER_COST, cost);
+                m.insert(MODIFIER_PREMIUM_COST, prem_cost);
+            } else {
+                m.insert(MODIFIER_COST, 0);
+                m.insert(MODIFIER_PREMIUM_COST, 0);
+            }
+            stats.cosmetics.data.insert(cosm_id, m);
+
+            let mut n = vec![0; data_len as usize - 8];
             file.read_exact(&mut n)?;
-            stats.cosmetics.data.insert(cosm_id, n);
+            stats.cosmetics_bin.data.insert(cosm_id, n);
         }
 
         Ok(())
@@ -328,7 +365,8 @@ impl StatsFile {
         StatsFile {
             blocks: FlagStats::new(),
             attacks: FlagStats::new(),
-            cosmetics: BinaryConfig::new()
+            cosmetics: FlagStats::new(),
+            cosmetics_bin: BinaryConfig::new()
         }
     }
 
@@ -346,11 +384,13 @@ impl StatsFile {
         Ok(())
     }
 
-    fn compile_sub_bin(stat: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
-        file.write_all(&u32::to_be_bytes(stat.data.len() as u32))?;
-        for kvp in &stat.data {
+    fn compile_cosm_v3(stat: &FlagStats, stat_bin: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
+        file.write_all(&u32::to_be_bytes(stat_bin.data.len() as u32))?;
+        for kvp in &stat_bin.data {
             file.write_all(&u32::to_be_bytes(*kvp.0))?;
-            file.write_all(&u8::to_be_bytes(kvp.1.len() as u8))?;
+            file.write_all(&u8::to_be_bytes((kvp.1.len() + 8) as u8))?;
+            file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_COST]))?;
+            file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_PREMIUM_COST]))?;
             file.write_all(&kvp.1)?;
         }
 
@@ -364,7 +404,7 @@ impl StatsFile {
 
         StatsFile::compile_sub_flag(&self.blocks, &mut file)?;
         StatsFile::compile_sub_flag(&self.attacks, &mut file)?;
-        StatsFile::compile_sub_bin(&self.cosmetics, &mut file)?;
+        StatsFile::compile_cosm_v3(&self.cosmetics, &self.cosmetics_bin, &mut file)?;
         Ok(file.into_inner())
     }
 }
