@@ -113,33 +113,37 @@ impl Inventory {
                 None => { return Err(format!("u32 overflow occurred for part {}", elem.0)); },
                 Some(s) => { into.parts.insert(*elem.0, s); }
             }
+        }
+
+        for elem in from.cosmetics.iter() {
             let summed = into.cosmetics.get(&elem.0).unwrap_or(&0i32).checked_add(*elem.1);
             match summed {
                 None => { return Err(format!("u32 overflow occurred for cosmetic {}", elem.0)); },
                 Some(s) => { into.cosmetics.insert(*elem.0, s); }
             }
         }
+
         Ok(into)
     }
 
     // Subtract "from"'s data from "into"
     // Returns Ok(Inv) if successful, Err(inv) if not (e.g. count would drop below zero)
     #[allow(dead_code)] // lib function
-    pub fn subtract_inventories(from: Inventory, mut into: Inventory) -> Result<Inventory, Inventory> {
+    pub fn subtract_inventories(from: &Inventory, mut into: Inventory) -> Result<Inventory, Inventory> {
         let mut negative = false;
-        for elem in from.parts {
+        for elem in from.parts.iter() {
             let in_into = *into.parts.get(&elem.0).unwrap_or(&0i32);
-            if elem.1 > in_into {
+            if *elem.1 > in_into {
                 negative = true;
             }
-            into.parts.insert(elem.0, in_into - elem.1);
+            into.parts.insert(*elem.0, in_into - elem.1);
         }
-        for elem in from.cosmetics {
+        for elem in from.cosmetics.iter() {
             let in_into = *into.cosmetics.get(&elem.0).unwrap_or(&0i32);
-            if elem.1 > in_into {
+            if *elem.1 > in_into {
                 negative = true;
             }
-            into.cosmetics.insert(elem.0, in_into - elem.1);
+            into.cosmetics.insert(*elem.0, in_into - elem.1);
         }
         if negative { Err(into) } else { Ok(into) }
     }
