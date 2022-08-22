@@ -107,8 +107,8 @@
     {
       "id": 14,
       "name": "Wheel",
-      "health": 1800,
-      "mass": 60,
+      "health": 2100,
+      "mass": 65,
       "cost": 450,
       "cpuCost": 14
     },
@@ -228,7 +228,7 @@
     {
       "id": 18,
       "name": "LaserGun",
-      "health": 2900,
+      "health": 2100,
       "mass": 55,
       "cost": 1200,
       "cpuCost": 40,
@@ -237,7 +237,7 @@
 	  {
       "id": 31,
       "name": "AlphaRailgun",
-      "health": 3100,
+      "health": 2900,
       "mass": 85,
       "cost": 1600,
       "cpuCost": 50,
@@ -246,11 +246,11 @@
 	  {
       "id": 32,
       "name": "AlphaPlasma",
-      "health": 2800,
-      "mass": 55,
+      "health": 2400,
+      "mass": 65,
       "cost": 1500,
       "cpuCost": 42,
-      "rotationSpeed": 270
+      "rotationSpeed": 250
     },
 	  {
       "id": 33,
@@ -416,7 +416,7 @@
       "id": 49,
       "name": "Gyroscope",
       "health": 2800,
-      "mass": 45,
+      "mass": 65,
       "cost": 1500,
       "cpuCost": 28
     },
@@ -498,8 +498,8 @@
     {
       "id": 59,
       "name": "NonSteerWheel",
-      "health": 2200,
-      "mass": 55,
+      "health": 2500,
+      "mass": 60,
       "cost": 350,
       "cpuCost": 10
     }
@@ -513,17 +513,17 @@
     {
       "id": 2,
       "name": "alphaPlasmaProjectile",
-      "damage": 850
+      "damage": 950
     },
     {
       "id": 3,
       "name": "alphaRailgunProjectile",
-      "damage": 4000
+      "damage": 4200
     },
     {
       "id": 4,
       "name": "nanoWeapon",
-      "damage": 210
+      "damage": 240
     },
     {
       "id": 5,
@@ -546,7 +546,7 @@
       "id": 1,
       "name": "EP Red",
       "cosmeticCost": 0,
-      "cosmeticPremiumCost": 20,
+      "cosmeticPremiumCost": 10,
       "config": []
     },
     {
@@ -561,6 +561,90 @@
       "name": "EP Yellow",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 10,
+      "config": []
+    },
+	{
+      "id": 4,
+      "name": "EP Purple",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 10,
+      "config": []
+    },
+	{
+      "id": 5,
+      "name": "EP White",
+      "cosmeticCost": 10000,
+      "cosmeticPremiumCost": 0,
+      "config": []
+    },
+	{
+      "id": 6,
+      "name": "EP Black",
+      "cosmeticCost": 10000,
+      "cosmeticPremiumCost": 0,
+      "config": []
+    },
+	{
+      "id": 7,
+      "name": "EP Orange",
+      "cosmeticCost": 10000,
+      "cosmeticPremiumCost": 0,
+      "config": []
+    },
+	{
+      "id": 8,
+      "name": "EP Bee",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 20,
+      "config": []
+    },
+    {
+      "id": 1000,
+      "name": "ThrusterBlueTest",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    }
+	{
+      "id": 1001,
+      "name": "ThrusterGlow",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    }
+	{
+      "id": 1002,
+      "name": "ThrusterGreen",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    }
+	{
+      "id": 1003,
+      "name": "ThrusterMusic",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    }
+	{
+      "id": 1004,
+      "name": "ThrusterJacked",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    }
+	{
+      "id": 1005,
+      "name": "ThrusterPlasma",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    }
+	{
+      "id": 1006,
+      "name": "ThrusterRings",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
       "config": []
     }
   ]
