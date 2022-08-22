@@ -563,35 +563,35 @@
       "cosmeticPremiumCost": 10,
       "config": []
     },
-	{
+  	{
       "id": 4,
       "name": "EP Purple",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 10,
       "config": []
     },
-	{
+  	{
       "id": 5,
       "name": "EP White",
       "cosmeticCost": 10000,
       "cosmeticPremiumCost": 0,
       "config": []
     },
-	{
+  	{
       "id": 6,
       "name": "EP Black",
       "cosmeticCost": 10000,
       "cosmeticPremiumCost": 0,
       "config": []
     },
-	{
+  	{
       "id": 7,
       "name": "EP Orange",
       "cosmeticCost": 10000,
       "cosmeticPremiumCost": 0,
       "config": []
     },
-	{
+  	{
       "id": 8,
       "name": "EP Bee",
       "cosmeticCost": 0,
@@ -604,43 +604,43 @@
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
-    }
-	{
+    },
+	  {
       "id": 1001,
       "name": "ThrusterGlow",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
-    }
-	{
+    },
+  	{
       "id": 1002,
       "name": "ThrusterGreen",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
-    }
-	{
+    },
+  	{
       "id": 1003,
       "name": "ThrusterMusic",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
-    }
-	{
+    },
+	  {
       "id": 1004,
       "name": "ThrusterJacked",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
-    }
-	{
+    },
+	  {
       "id": 1005,
       "name": "ThrusterPlasma",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
-    }
-	{
+    },
+    {
       "id": 1006,
       "name": "ThrusterRings",
       "cosmeticCost": 0,
