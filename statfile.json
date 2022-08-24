@@ -40,6 +40,14 @@
       "cost": 100,
       "cpuCost": 1
     },
+	{
+      "id": 20,
+      "name": "NormalPyramid",
+      "health": 50,
+      "mass": 5,
+      "cost": 100,
+      "cpuCost": 1
+    },
     {
       "id": 6,
       "name": "HeavyCube",
@@ -69,6 +77,14 @@
       "name": "HeavyPrism",
       "health": 115,
       "mass": 36,
+      "cost": 125,
+      "cpuCost": 1
+    },
+	{
+      "id": 61,
+      "name": "HeavyPyramid",
+      "health": 62,
+      "mass": 30,
       "cost": 125,
       "cpuCost": 1
     },
@@ -104,11 +120,19 @@
       "cost": 125,
       "cpuCost": 1
     },
+	{
+      "id": 62,
+      "name": "GlassPyramid",
+      "health": 36,
+      "mass": 6,
+      "cost": 125,
+      "cpuCost": 1
+    },
     {
       "id": 14,
       "name": "Wheel",
       "health": 2100,
-      "mass": 65,
+      "mass": 190,
       "cost": 450,
       "cpuCost": 14
     },
@@ -135,14 +159,6 @@
       "mass": 20,
       "cost": 620,
       "cpuCost": 14
-    },
-	  {
-      "id": 20,
-      "name": "NormalPyramid",
-      "health": 50,
-      "mass": 5,
-      "cost": 100,
-      "cpuCost": 1
     },
     {
       "id": 21,
@@ -307,9 +323,9 @@
       "name": "ElectroplateA_L",
       "health": 200,
       "mass": 34,
-      "shield": 3700,
+      "shield": 3200,
       "shieldCharge": 250,
-      "shieldChargeDelay": 5000,
+      "shieldChargeDelay": 7500,
       "cost": 950,
       "cpuCost": 29
     },
@@ -318,9 +334,9 @@
       "name": "ElectroplateA_R",
       "health": 200,
       "mass": 34,
-      "shield": 3700,
+      "shield": 3200,
       "shieldCharge": 250,
-      "shieldChargeDelay": 5000,
+      "shieldChargeDelay": 7500,
       "cost": 950,
       "cpuCost": 29
     },
@@ -329,9 +345,9 @@
       "name": "ElectroplateB_L",
       "health": 200,
       "mass": 22,
-      "shield": 3050,
+      "shield": 2650,
       "shieldCharge": 250,
-      "shieldChargeDelay": 5000,
+      "shieldChargeDelay": 7500,
       "cost": 825,
       "cpuCost": 22
     },
@@ -340,9 +356,9 @@
       "name": "ElectroplateB_R",
       "health": 200,
       "mass": 22,
-      "shield": 3050,
+      "shield": 2650,
       "shieldCharge": 250,
-      "shieldChargeDelay": 5000,
+      "shieldChargeDelay": 7500,
       "cost": 825,
       "cpuCost": 22
     },
@@ -351,7 +367,7 @@
       "name": "ElectroplateC",
       "health": 200,
       "mass": 22,
-      "shield": 2200,
+      "shield": 1500,
       "shieldCharge": 250,
       "shieldChargeDelay": 5000,
       "cost": 700,
@@ -499,9 +515,17 @@
       "id": 59,
       "name": "NonSteerWheel",
       "health": 2500,
-      "mass": 60,
+      "mass": 180,
       "cost": 350,
       "cpuCost": 10
+    },
+	{
+      "id": 60,
+      "name": "Vaportrail",
+      "health": 5,
+      "mass": 5,
+      "cost": 35000,
+      "cpuCost": 5
     }
   ],
   "attacks": [
@@ -545,8 +569,8 @@
     {
       "id": 1,
       "name": "EP Red",
-      "cosmeticCost": 0,
-      "cosmeticPremiumCost": 10,
+      "cosmeticCost": 10000,
+      "cosmeticPremiumCost": 0,
       "config": []
     },
     {
@@ -563,37 +587,37 @@
       "cosmeticPremiumCost": 10,
       "config": []
     },
-  	{
+	{
       "id": 4,
-      "name": "EP Purple",
-      "cosmeticCost": 0,
-      "cosmeticPremiumCost": 10,
-      "config": []
-    },
-  	{
-      "id": 5,
-      "name": "EP White",
-      "cosmeticCost": 10000,
-      "cosmeticPremiumCost": 0,
-      "config": []
-    },
-  	{
-      "id": 6,
-      "name": "EP Black",
-      "cosmeticCost": 10000,
-      "cosmeticPremiumCost": 0,
-      "config": []
-    },
-  	{
-      "id": 7,
       "name": "EP Orange",
       "cosmeticCost": 10000,
       "cosmeticPremiumCost": 0,
       "config": []
     },
-  	{
-      "id": 8,
+	{
+      "id": 5,
+      "name": "EP Purple",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 10,
+      "config": []
+    },
+	{
+      "id": 6,
       "name": "EP Bee",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 20,
+      "config": []
+    },
+	{
+      "id": 7,
+      "name": "EP White",
+      "cosmeticCost": 10000,
+      "cosmeticPremiumCost": 0,
+      "config": []
+    },
+	{
+      "id": 8,
+      "name": "EP Black",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 20,
       "config": []
@@ -605,42 +629,42 @@
       "cosmeticPremiumCost": 5,
       "config": []
     },
-	  {
+	{
       "id": 1001,
-      "name": "ThrusterGlow",
-      "cosmeticCost": 0,
-      "cosmeticPremiumCost": 5,
-      "config": []
-    },
-  	{
-      "id": 1002,
-      "name": "ThrusterGreen",
-      "cosmeticCost": 0,
-      "cosmeticPremiumCost": 5,
-      "config": []
-    },
-  	{
-      "id": 1003,
       "name": "ThrusterMusic",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
     },
-	  {
+	{
+      "id": 1002,
+      "name": "ThrusterPlasma",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    },
+	{
+      "id": 1003,
+      "name": "ThrusterGlow",
+      "cosmeticCost": 0,
+      "cosmeticPremiumCost": 5,
+      "config": []
+    },
+	{
       "id": 1004,
       "name": "ThrusterJacked",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
     },
-	  {
+	{
       "id": 1005,
-      "name": "ThrusterPlasma",
+      "name": "ThrusterGreen",
       "cosmeticCost": 0,
       "cosmeticPremiumCost": 5,
       "config": []
     },
-    {
+	{
       "id": 1006,
       "name": "ThrusterRings",
       "cosmeticCost": 0,
