@@ -1,4 +1,4 @@
-# The RobotFile File Format: Version `2`
+# The RobotFile File Format: Version `3`
 
 All multi-byte numbers are big-endian and unsigned unless otherwise mentioned
 
