@@ -157,10 +157,10 @@ pub fn tool(mut args: std::env::Args) {
     let src_manifest : BuildManifest = serde_json::from_slice(&std::fs::read(src_path.join("manifest.json")).unwrap()).unwrap();
     let dst_manifest : BuildManifest = serde_json::from_slice(&std::fs::read(dst_path.join("manifest.json")).unwrap()).unwrap();
 
-    let src_version = Version::create(src_manifest.version[0], src_manifest.version[1], src_manifest.version[2], src_manifest.dev);
-    let dst_version = Version::create(dst_manifest.version[0], dst_manifest.version[1], dst_manifest.version[2], dst_manifest.dev);
+    let src_version = Version::new(src_manifest.version, src_manifest.channel);
+    let dst_version = Version::new(dst_manifest.version, dst_manifest.channel);
 
-    let patch = Patch::new(src_version, dst_version);
+    let patch = Patch::new(src_version.clone(), dst_version.clone());
     println!("Assembling patch {}", String::from(&patch));
 
     let patch_dir = args.next().unwrap_or(format!("delta-{}", String::from(&patch)));

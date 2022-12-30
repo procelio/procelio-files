@@ -8,9 +8,9 @@ use std::io::Read;
 
 #[derive(Serialize, Deserialize)]
 pub struct InstallManifest {
-    pub exec: String,
-    pub dev: bool,
-    pub version: Vec<i32>,
+  pub version: String,
+  pub channel: String,
+  pub exec: String
 }
 
 pub fn patch_bytes(from: &[u8], patch: &[u8]) -> Vec<u8> {
@@ -110,8 +110,8 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
 
   let gamemanifest = InstallManifest {
     exec: manifest.new_exec,
-    version: vec!(manifest.target.major as i32, manifest.target.minor as i32, manifest.target.patch as i32),
-    dev: manifest.target.dev_build
+    version: manifest.target.version.clone(),
+    channel: manifest.target.channel.clone()
   };
   std::fs::rename(root_path.join("manifest.json"), root_path.join("manifest.json.a").with_extension(rollback))?;
   std::fs::write(root_path.join("manifest.json"), serde_json::to_string(&gamemanifest).unwrap())?;

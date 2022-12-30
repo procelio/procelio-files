@@ -6,44 +6,34 @@ use regex::Regex;
 
 #[derive(Serialize, Deserialize)]
 pub struct BuildManifest {
-    pub version: Vec<u32>,
-    pub dev: bool,
+    pub version: String,
+    pub channel: String,
     pub exec: String
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Hash, Debug)]
+#[derive(Clone, Serialize, Deserialize, Hash, Debug)]
 pub struct Version {
-    pub major: u32,
-    pub minor: u32,
-    pub patch: u32,
-    pub dev_build: bool
+    pub version: String,
+    pub channel: String
 }
 
 impl Version {
-    pub fn new() -> Version {
-        Version {
-            major: 0,
-            minor: 0,
-            patch: 0,
-            dev_build: false
+    pub fn new(version: String, channel: String) -> Self {
+        Self {
+            version, channel
         }
     }
-    pub fn create(major: u32, minor: u32, patch: u32, dev: bool) -> Version {
-        Version {
-            major: major,
-            minor: minor,
-            patch: patch,
-            dev_build: dev
-        }
+    pub fn create(major: u32, minor: u32, patch: u32, channel: String) -> Version {
+        Version::new(format!("{major}.{minor}.{patch}"), channel)
     }
 }
 impl From<&Version> for String {
     fn from(v: &Version) -> String {
-        format!("{}.{}.{}{}", v.major, v.minor, v.patch, if v.dev_build { "dev"} else { "" })
+        format!("{}-{}", v.version, v.channel)
     }
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Hash, Debug)]
+#[derive(Clone, Serialize, Deserialize, Hash, Debug)]
 pub struct Patch {
     pub from: Version,
     pub to: Version
@@ -65,16 +55,14 @@ impl From<&Patch> for String {
 
 impl PartialEq for Version {
     fn eq(&self, other: &Self) -> bool {
-        self.major == other.major && self.minor == other.minor 
-        && self.patch == other.patch && self.dev_build == other.dev_build
+        self.version == other.version && self.channel == other.channel
     }
 }
 impl Eq for Version {}
 
 impl Ord for Version {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.major.cmp(&other.major).then(self.minor.cmp(&other.minor))
-            .then(self.patch.cmp(&other.patch)).then(self.dev_build.cmp(&other.dev_build))
+        self.version.cmp(&other.version).then(self.channel.cmp(&other.channel))
     }
 }
 
@@ -108,44 +96,39 @@ impl PartialOrd for Patch {
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref PATCH: Regex = Regex::new(r"(?:(?:[^\d]*)|(?:.*[^\d]))(\d+)\.(\d+)\.(\d+)(dev)?-(\d+)\.(\d+)\.(\d+)(dev)?.*").unwrap();
-    static ref VERSION: Regex = Regex::new(r"(?:(?:[^\d]*)|(?:.*[^\d]))(\d+)\.(\d+)\.(\d+)(dev)?").unwrap();
+    static ref PATCH: Regex = Regex::new(r"^([^_]*)(_?([^_]*))-([^_]*)(_?([^_]*))$").unwrap();
+    static ref VERSION: Regex = Regex::new(r"^([^_]*)(_?([^_]*))$").unwrap();
 }
+
 impl TryFrom<&str> for Version {
     type Error = String;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let version_cap = VERSION.captures(s);
         if let Some(cap) = version_cap {
-            let v1: u32 = cap.get(1).unwrap().as_str().parse().unwrap();
-            let v2: u32 = cap.get(2).unwrap().as_str().parse().unwrap();
-            let v3: u32 = cap.get(3).unwrap().as_str().parse().unwrap();
-            let dev = cap.get(4).is_some();
-            Ok(Version {major: v1, minor: v2, patch: v3, dev_build: dev})
+            let v1 = cap.get(1).unwrap().as_str().to_owned();
+            let v2 = cap.get(3).map(|x| x.as_str().to_owned());
+            Ok(Version { version: v1, channel: v2.unwrap_or("prod".to_owned())})
         } else {
             Err(format!("unable to parse version {}", s))
         }
     }
 }
+
 impl TryFrom<&str> for Patch {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let patch_cap = PATCH.captures(s);
         if let Some(cap) = patch_cap {
-            let v11: u32 = cap.get(1).unwrap().as_str().parse().unwrap();
-            let v12: u32 = cap.get(2).unwrap().as_str().parse().unwrap();
-            let v13: u32 = cap.get(3).unwrap().as_str().parse().unwrap();
-            let first_dev = cap.get(4).is_some();
+            let v1 = cap.get(1).unwrap().as_str().to_owned();
+            let v2 = cap.get(3).map(|x| x.as_str().to_owned());
           
-            let v21: u32 = cap.get(5).unwrap().as_str().parse().unwrap();
-            let v22: u32 = cap.get(6).unwrap().as_str().parse().unwrap();
-            let v23: u32 = cap.get(7).unwrap().as_str().parse().unwrap();
-            let second_dev = cap.get(8).is_some();
-
+            let v4 = cap.get(4).unwrap().as_str().to_owned();
+            let v6 = cap.get(6).map(|x| x.as_str().to_owned());
 
             Ok(Patch::new(
-                Version {major: v11, minor: v12, patch: v13, dev_build: first_dev},
-                Version {major: v21, minor: v22, patch: v23, dev_build: second_dev}
+                Version::new(v1, v2.unwrap_or("prod".to_owned())),
+                Version::new(v4, v6.unwrap_or("prod".to_owned())),
             ))
         } else {
             Err(format!("unable to parse patch {}", s))
