@@ -23,9 +23,16 @@ pub const SHIELD_CHARGE_DELAY_FLAG: u8 = 11; // millis after damage before start
 pub const USABILITY_HEALTH: u8 = 12; // How much "usable" HP there is (e.g. tesla blade charges)
 pub const LIFT_FLAG: u8 = 13;
 
-pub const SPECIAL_FLAG_1: u8 = 200; // Special per-part usage 0
-pub const SPECIAL_FLAG_2: u8 = 201; // Special per-part usage 1
-pub const SPECIAL_FLAG_3: u8 = 202; // Special per-part usage 2
+pub const SPECIAL_FLAG_0: u8 = 200; // Special per-part usage 0
+pub const SPECIAL_FLAG_1: u8 = 201; // Special per-part usage 1
+pub const SPECIAL_FLAG_2: u8 = 202; // Special per-part usage 2
+pub const SPECIAL_FLAG_3: u8 = 203; // Special per-part usage 3
+pub const SPECIAL_FLAG_4: u8 = 204; // Special per-part usage 4
+pub const SPECIAL_FLAG_5: u8 = 205; // Special per-part usage 5
+pub const SPECIAL_FLAG_6: u8 = 206; // Special per-part usage 6
+pub const SPECIAL_FLAG_7: u8 = 207; // Special per-part usage 7
+pub const SPECIAL_FLAG_8: u8 = 208; // Special per-part usage 8
+pub const SPECIAL_FLAG_9: u8 = 209; // Special per-part usage 9
 
 pub const MODIFIER_COST: u8 = 250;
 pub const MODIFIER_PREMIUM_COST: u8 = 251;
@@ -141,12 +148,30 @@ fn flag_id(flag: &str) -> Option<u8> {
         "cosmeticCost" => Some(MODIFIER_COST),
         "cosmeticPremiumCost" => Some(MODIFIER_PREMIUM_COST),
         x => {
-            if x.starts_with("spec1") {
-                Some(SPECIAL_FLAG_1)
-            } else if x.starts_with("spec2") {
-                Some(SPECIAL_FLAG_2)
-            } else if x.starts_with("spec3") {
-                Some(SPECIAL_FLAG_3)
+            if (x.starts_with("spec")) {
+                if x.starts_with("spec0") {
+                    Some(SPECIAL_FLAG_0)
+                } else if x.starts_with("spec1") {
+                    Some(SPECIAL_FLAG_1)
+                } else if x.starts_with("spec2") {
+                    Some(SPECIAL_FLAG_2)
+                } else if x.starts_with("spec3") {
+                    Some(SPECIAL_FLAG_3)
+                } else if x.starts_with("spec4") {
+                    Some(SPECIAL_FLAG_4)
+                } else if x.starts_with("spec5") {
+                    Some(SPECIAL_FLAG_5)
+                } else if x.starts_with("spec6") {
+                    Some(SPECIAL_FLAG_6)
+                } else if x.starts_with("spec7") {
+                    Some(SPECIAL_FLAG_7)
+                } else if x.starts_with("spec8") {
+                    Some(SPECIAL_FLAG_8)
+                } else if x.starts_with("spec9") {
+                    Some(SPECIAL_FLAG_9)
+                } else {
+                    None
+                }
             } else {
                 None
             }
@@ -170,9 +195,16 @@ fn flag_name(flag: u8) -> &'static str {
         PREMIUM_COST_FLAG => "premiumCost",
         USABILITY_HEALTH => "functionHealth",
         LIFT_FLAG => "lift",
+        SPECIAL_FLAG_0 => "spec0",
         SPECIAL_FLAG_1 => "spec1",
         SPECIAL_FLAG_2 => "spec2",
         SPECIAL_FLAG_3 => "spec3",
+        SPECIAL_FLAG_4 => "spec4",
+        SPECIAL_FLAG_5 => "spec5",
+        SPECIAL_FLAG_6 => "spec6",
+        SPECIAL_FLAG_7 => "spec7",
+        SPECIAL_FLAG_8 => "spec8",
+        SPECIAL_FLAG_9 => "spec9",
         MODIFIER_COST => "cosmeticCost",
         MODIFIER_PREMIUM_COST => "cosmeticPremiumCost",
         _ => "err"
