@@ -33,6 +33,16 @@ pub const SPECIAL_FLAG_6: u8 = 206; // Special per-part usage 6
 pub const SPECIAL_FLAG_7: u8 = 207; // Special per-part usage 7
 pub const SPECIAL_FLAG_8: u8 = 208; // Special per-part usage 8
 pub const SPECIAL_FLAG_9: u8 = 209; // Special per-part usage 9
+pub const SPECIAL_FLAG_10: u8 = 210; // Special per-part usage 10
+pub const SPECIAL_FLAG_11: u8 = 211; // Special per-part usage 11
+pub const SPECIAL_FLAG_12: u8 = 212; // Special per-part usage 12
+pub const SPECIAL_FLAG_13: u8 = 213; // Special per-part usage 13
+pub const SPECIAL_FLAG_14: u8 = 214; // Special per-part usage 14
+pub const SPECIAL_FLAG_15: u8 = 215; // Special per-part usage 15
+pub const SPECIAL_FLAG_16: u8 = 216; // Special per-part usage 16
+pub const SPECIAL_FLAG_17: u8 = 217; // Special per-part usage 17
+pub const SPECIAL_FLAG_18: u8 = 218; // Special per-part usage 18
+pub const SPECIAL_FLAG_19: u8 = 219; // Special per-part usage 19
 
 pub const MODIFIER_COST: u8 = 250;
 pub const MODIFIER_PREMIUM_COST: u8 = 251;
@@ -151,24 +161,44 @@ fn flag_id(flag: &str) -> Option<u8> {
             if (x.starts_with("spec")) {
                 if x.starts_with("spec0") {
                     Some(SPECIAL_FLAG_0)
-                } else if x.starts_with("spec1") {
+                } else if x.starts_with("spec1_") {
                     Some(SPECIAL_FLAG_1)
-                } else if x.starts_with("spec2") {
+                } else if x.starts_with("spec2_") {
                     Some(SPECIAL_FLAG_2)
-                } else if x.starts_with("spec3") {
+                } else if x.starts_with("spec3_") {
                     Some(SPECIAL_FLAG_3)
-                } else if x.starts_with("spec4") {
+                } else if x.starts_with("spec4_") {
                     Some(SPECIAL_FLAG_4)
-                } else if x.starts_with("spec5") {
+                } else if x.starts_with("spec5_") {
                     Some(SPECIAL_FLAG_5)
-                } else if x.starts_with("spec6") {
+                } else if x.starts_with("spec6_") {
                     Some(SPECIAL_FLAG_6)
-                } else if x.starts_with("spec7") {
+                } else if x.starts_with("spec7_") {
                     Some(SPECIAL_FLAG_7)
-                } else if x.starts_with("spec8") {
+                } else if x.starts_with("spec8_") {
                     Some(SPECIAL_FLAG_8)
-                } else if x.starts_with("spec9") {
+                } else if x.starts_with("spec9_") {
                     Some(SPECIAL_FLAG_9)
+                } else if x.starts_with("spec10_") {
+                    Some(SPECIAL_FLAG_10)
+                } else if x.starts_with("spec11_") {
+                    Some(SPECIAL_FLAG_11)
+                } else if x.starts_with("spec12_") {
+                    Some(SPECIAL_FLAG_12)
+                } else if x.starts_with("spec13_") {
+                    Some(SPECIAL_FLAG_13)
+                } else if x.starts_with("spec14_") {
+                    Some(SPECIAL_FLAG_14)
+                } else if x.starts_with("spec15_") {
+                    Some(SPECIAL_FLAG_15)
+                } else if x.starts_with("spec16_") {
+                    Some(SPECIAL_FLAG_16)
+                } else if x.starts_with("spec17_") {
+                    Some(SPECIAL_FLAG_17)
+                } else if x.starts_with("spec18_") {
+                    Some(SPECIAL_FLAG_18)
+                } else if x.starts_with("spec19_") {
+                    Some(SPECIAL_FLAG_19)
                 } else {
                     None
                 }

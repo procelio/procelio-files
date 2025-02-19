@@ -25,6 +25,7 @@ fn main() {
     let tool = tool.unwrap();
 
     match tool.as_str() {
+        "version" => {println!("2025.2.18"); return;},
         "help" => {usage(); return;},
         "statbin" => tools::statbin::tool(args),
         "invbin" => tools::invbin::tool(args),
