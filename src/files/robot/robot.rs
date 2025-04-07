@@ -37,7 +37,8 @@ pub struct Robot {
     pub metadata: u64,
     pub bot_name: Vec<u8>,
     pub parts: Vec<Part>,
-    pub cosmetics: Vec<Cosmetic>
+    pub cosmetics: Vec<Cosmetic>,
+    pub hash: Option<Vec<u8>>
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -192,6 +193,7 @@ impl Robot {
         if &res[..] != &whole[whole.len()-16..] {
             return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Bot hash did not match"));
         }
+        inv.hash = Some(res.to_vec());
 
         let mut buf8 = [0u8; 8];
         let mut buf4 = [0u8; 4];
@@ -278,7 +280,8 @@ impl Robot {
             metadata: 0u64,
             bot_name: "robot".to_owned().into_bytes(),
             parts: Vec::new(),
-            cosmetics: Vec::new()
+            cosmetics: Vec::new(),
+            hash: None
         }
     }
 
