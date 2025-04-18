@@ -1,6 +1,6 @@
 use std::fs;
 use std::io::prelude::*;
-use zip::write::FileOptions;
+use zip::write::{FileOptions, SimpleFileOptions};
 
 fn zip_usage() {
     println!("zip path/to/folder");
@@ -11,7 +11,7 @@ fn zip_recursive<T: Write + std::io::Seek> (
     path: &std::path::Path,
     root: &std::path::Path,
     zipper: &mut zip::ZipWriter<T>) {
-    let options = FileOptions::default()
+    let options = SimpleFileOptions::default()
         .unix_permissions(0o755);
     let name = path.strip_prefix(root).unwrap().to_str().unwrap().to_owned();
 
@@ -45,7 +45,7 @@ fn zip_dir<T: Write + Seek>(
     let mut zip = zip::ZipWriter::new(writer);
     let manifest = path.join("manifest.json");
     if std::fs::metadata(&manifest).is_ok() {
-        zip.start_file("manifest.json".to_owned(), FileOptions::default().unix_permissions(0o755)).unwrap();
+        zip.start_file("manifest.json".to_owned(), SimpleFileOptions::default().unix_permissions(0o755)).unwrap();
         let mut bytes = Vec::new();
         std::fs::File::open(manifest).unwrap().read_to_end(&mut bytes).unwrap();
         zip.write_all(&bytes).unwrap();
