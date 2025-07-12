@@ -158,7 +158,7 @@ fn flag_id(flag: &str) -> Option<u8> {
         "cosmeticCost" => Some(MODIFIER_COST),
         "cosmeticPremiumCost" => Some(MODIFIER_PREMIUM_COST),
         x => {
-            if (x.starts_with("spec")) {
+            if x.starts_with("spec") { // I know it's bad
                 if x.starts_with("spec0") {
                     Some(SPECIAL_FLAG_0)
                 } else if x.starts_with("spec1_") {

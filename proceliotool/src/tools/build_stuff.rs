@@ -93,17 +93,18 @@ impl PartialOrd for Patch {
     }
 }
 
-use lazy_static::lazy_static;
+use std::cell::OnceCell;
 
-lazy_static! {
-    static ref PATCH: Regex = Regex::new(r"^([^_]*)(_?([^_]*))-([^_]*)(_?([^_]*))$").unwrap();
-    static ref VERSION: Regex = Regex::new(r"^([^_]*)(_?([^_]*))$").unwrap();
-}
+const VERSION_REGEX: OnceCell<Regex> = OnceCell::new();
+const PATCH_REGEX: OnceCell<Regex> = OnceCell::new();
 
 impl TryFrom<&str> for Version {
     type Error = String;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
+        let bind = VERSION_REGEX;
+        let VERSION = bind.get_or_init(|| Regex::new(r"^([^_]*)(_?([^_]*))$").unwrap());
+
         let version_cap = VERSION.captures(s);
         if let Some(cap) = version_cap {
             let v1 = cap.get(1).unwrap().as_str().to_owned();
@@ -118,6 +119,9 @@ impl TryFrom<&str> for Version {
 impl TryFrom<&str> for Patch {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
+        let bind = PATCH_REGEX;
+        let PATCH = bind.get_or_init(|| Regex::new(r"^([^_]*)(_?([^_]*))-([^_]*)(_?([^_]*))$").unwrap());
+        
         let patch_cap = PATCH.captures(s);
         if let Some(cap) = patch_cap {
             let v1 = cap.get(1).unwrap().as_str().to_owned();
