@@ -37,6 +37,7 @@ fn main() {
         "zip" => tools::zip::tool(args),
         "patch" => tools::patch::tool(args),
         "botmgmt" => tools::botmgmt::tool(args),
+        "broadcast" => tools::chatbroadcast::tool(args),
         _ => {usage(); return;}
     };
 

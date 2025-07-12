@@ -262,7 +262,7 @@ impl TryFrom<&[u8]> for StatsFile {
         if magic != STATFILE_MAGIC_NUMBER {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Magic number was invalid: {}", magic),
+                format!("Magic number was invalid: {magic}"),
             ));
         }
 
@@ -274,12 +274,10 @@ impl TryFrom<&[u8]> for StatsFile {
             3 => StatsFile::from_v3(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Version was invalid: {}", version),
+                format!("Version was invalid: {version}"),
             )),
         };
-        if let Err(e) = res {
-            return Err(e);
-        }
+        res?;
 
         Ok(blank)
     }
@@ -463,7 +461,7 @@ impl StatsFile {
             file.write_all(&u8::to_be_bytes((kvp.1.len() + 8) as u8))?;
             file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_COST]))?;
             file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_PREMIUM_COST]))?;
-            file.write_all(&kvp.1)?;
+            file.write_all(kvp.1)?;
         }
 
         Ok(())

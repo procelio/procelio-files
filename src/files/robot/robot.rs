@@ -84,7 +84,7 @@ impl TryFrom<&[u8]> for Robot {
         if magic != ROBOT_MAGIC_NUMBER {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Magic number was invalid: {}", magic),
+                format!("Magic number was invalid: {magic}"),
             ));
         }
 
@@ -96,12 +96,10 @@ impl TryFrom<&[u8]> for Robot {
             3 => Robot::from_v3(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Version was invalid: {}", version),
+                format!("Version was invalid: {version}"),
             )),
         };
-        if let Err(e) = res {
-            return Err(e);
-        }
+        res?;
 
         Ok(blank)
     }
@@ -176,7 +174,7 @@ impl Robot {
             file.read_exact(&mut buf2)?;
             let part_id = u16::from_be_bytes(buf2);
             inv.parts.push( Part {
-                id: part_id.into(), pos_x: pos_x, pos_y: pos_y, pos_z: pos_z, rotation: rotation,
+                id: part_id.into(), pos_x, pos_y, pos_z, rotation,
                 color_r: col_r, color_g: col_g, color_b: col_b, alpha_channel: 0, extra_bytes: Vec::new()
             });
         }
@@ -190,7 +188,7 @@ impl Robot {
         let mut md5hash = Md5::new();
         md5hash.update(&whole[0..whole.len()-16]);
         let res = md5hash.finalize();
-        if &res[..] != &whole[whole.len()-16..] {
+        if res[..] != whole[whole.len()-16..] {
             return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Bot hash did not match"));
         }
         inv.hash = Some(res.to_vec());
@@ -235,12 +233,12 @@ impl Robot {
             file.read_exact(&mut buf1)?;
             let extradata_size = u8::from_be_bytes(buf1);
             if extradata_size > MAX_EXTRADATA_SIZE {
-                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("Block {}: Extra data region can only be 64 bytes long (was {})", i, extradata_size)));
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("Block {i}: Extra data region can only be 64 bytes long (was {extradata_size})")));
             }
             let mut bytes = vec!(0u8; extradata_size.into());
             file.read_exact(&mut bytes)?;
             inv.parts.push( Part {
-                id: part_id, pos_x: pos_x, pos_y: pos_y, pos_z: pos_z, rotation: rotation,
+                id: part_id, pos_x, pos_y, pos_z, rotation,
                 color_r: col_r, color_g: col_g, color_b: col_b, alpha_channel: alpha, extra_bytes: bytes
             });
         }
@@ -264,7 +262,7 @@ impl Robot {
             file.read_exact(&mut buf1)?;
             let extradata_size = u8::from_be_bytes(buf1);
             if extradata_size > MAX_EXTRADATA_SIZE {
-                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("Cosmetic {}: Extra data region can only be 64 bytes long (was {})", i, extradata_size)));
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("Cosmetic {i}: Extra data region can only be 64 bytes long (was {extradata_size})")));
             }
             let mut bytes = vec!(0u8; extradata_size.into());
             file.read_exact(&mut bytes)?;

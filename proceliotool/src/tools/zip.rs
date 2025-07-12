@@ -1,6 +1,6 @@
 use std::fs;
 use std::io::prelude::*;
-use zip::write::{FileOptions, SimpleFileOptions};
+use zip::write::SimpleFileOptions;
 
 fn zip_usage() {
     println!("zip path/to/folder");

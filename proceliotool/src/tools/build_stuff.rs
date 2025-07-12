@@ -103,9 +103,9 @@ impl TryFrom<&str> for Version {
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let bind = VERSION_REGEX;
-        let VERSION = bind.get_or_init(|| Regex::new(r"^([^_]*)(_?([^_]*))$").unwrap());
+        let version = bind.get_or_init(|| Regex::new(r"^([^_]*)(_?([^_]*))$").unwrap());
 
-        let version_cap = VERSION.captures(s);
+        let version_cap = version.captures(s);
         if let Some(cap) = version_cap {
             let v1 = cap.get(1).unwrap().as_str().to_owned();
             let v2 = cap.get(3).map(|x| x.as_str().to_owned());
@@ -120,9 +120,9 @@ impl TryFrom<&str> for Patch {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let bind = PATCH_REGEX;
-        let PATCH = bind.get_or_init(|| Regex::new(r"^([^_]*)(_?([^_]*))-([^_]*)(_?([^_]*))$").unwrap());
+        let patch = bind.get_or_init(|| Regex::new(r"^([^_]*)(_?([^_]*))-([^_]*)(_?([^_]*))$").unwrap());
         
-        let patch_cap = PATCH.captures(s);
+        let patch_cap = patch.captures(s);
         if let Some(cap) = patch_cap {
             let v1 = cap.get(1).unwrap().as_str().to_owned();
             let v2 = cap.get(3).map(|x| x.as_str().to_owned());

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use fnv;
-use crate::files::robot::robot::{Robot, JsonPart};
+use crate::files::robot::robot::Robot;
 pub const INVENTORY_MAGIC_NUMBER: u32 = 0xC50CB115; // 15B10CC5 "IsBloccs"
 const CURRENT_VERSION: u32 = 3;
 
@@ -36,7 +36,7 @@ impl TryFrom<&[u8]> for Inventory {
         if magic != INVENTORY_MAGIC_NUMBER {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Magic number was invalid: {}", magic),
+                format!("Magic number was invalid: {magic}"),
             ));
         }
 
@@ -48,12 +48,10 @@ impl TryFrom<&[u8]> for Inventory {
             3 => Inventory::from_v3(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Version was invalid: {}", version),
+                format!("Version was invalid: {version}"),
             )),
         };
-        if let Err(e) = res {
-            return Err(e);
-        }
+        res?;
 
         Ok(blank)
     }
@@ -108,7 +106,7 @@ impl Inventory {
     #[allow(dead_code)] // lib function
     pub fn add_inventories(from: &Inventory, mut into: Inventory) -> Result<Inventory, String> {
         for elem in from.parts.iter() {
-            let summed = into.parts.get(&elem.0).unwrap_or(&0i32).checked_add(*elem.1);
+            let summed = into.parts.get(elem.0).unwrap_or(&0i32).checked_add(*elem.1);
             match summed {
                 None => { return Err(format!("u32 overflow occurred for part {}", elem.0)); },
                 Some(s) => { into.parts.insert(*elem.0, s); }
@@ -116,7 +114,7 @@ impl Inventory {
         }
 
         for elem in from.cosmetics.iter() {
-            let summed = into.cosmetics.get(&elem.0).unwrap_or(&0i32).checked_add(*elem.1);
+            let summed = into.cosmetics.get(elem.0).unwrap_or(&0i32).checked_add(*elem.1);
             match summed {
                 None => { return Err(format!("u32 overflow occurred for cosmetic {}", elem.0)); },
                 Some(s) => { into.cosmetics.insert(*elem.0, s); }
@@ -132,14 +130,14 @@ impl Inventory {
     pub fn subtract_inventories(from: &Inventory, mut into: Inventory) -> Result<Inventory, Inventory> {
         let mut negative = false;
         for elem in from.parts.iter() {
-            let in_into = *into.parts.get(&elem.0).unwrap_or(&0i32);
+            let in_into = *into.parts.get(elem.0).unwrap_or(&0i32);
             if *elem.1 > in_into {
                 negative = true;
             }
             into.parts.insert(*elem.0, in_into - elem.1);
         }
         for elem in from.cosmetics.iter() {
-            let in_into = *into.cosmetics.get(&elem.0).unwrap_or(&0i32);
+            let in_into = *into.cosmetics.get(elem.0).unwrap_or(&0i32);
             if *elem.1 > in_into {
                 negative = true;
             }

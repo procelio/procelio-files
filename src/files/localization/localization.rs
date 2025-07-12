@@ -65,7 +65,7 @@ pub struct Translation {
 impl TextElement {
     pub fn new(name: String) -> TextElement {
         TextElement {
-            name: name,
+            name,
             value: "".to_string(),
             size: 0,
             bold: false,
@@ -81,6 +81,12 @@ impl TextElement {
 
 
 // Serialization functions for compiling a translation
+impl Default for Translation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Translation {
     pub fn new() -> Translation {
         Translation {
@@ -101,7 +107,7 @@ impl Translation {
         file.write_all(&u16::to_be_bytes(value.len() as u16))?;
         file.write_all(value)?;
 
-        file.write_all(&u16::to_be_bytes(text.size as u16))?;
+        file.write_all(&u16::to_be_bytes(text.size))?;
         let mut modifications : u8 = 0;
         if text.bold {
             modifications |= 1;
@@ -161,7 +167,7 @@ impl Translation {
         file.write_all(&u32::to_be_bytes(self.language_elements.len() as u32))?;
         println!("Writing elements at {:?}", file.position());
         for elem in &self.language_elements {
-            self.compile_elem(&mut file, &elem)?;
+            self.compile_elem(&mut file, elem)?;
         }
 
         file.seek(SeekFrom::Start(0))?;
@@ -235,8 +241,8 @@ impl Translation {
             let b = buf1[0];
 
             translate.language_elements.push(TextElement {
-                name: name,
-                value: value,
+                name,
+                value,
                 size: text_size,
                 bold,
                 italic,
@@ -321,15 +327,15 @@ impl Translation {
 
 
             translate.language_elements.push(TextElement {
-                name: name,
-                value: value,
+                name,
+                value,
                 size: text_size,
                 bold,
                 italic,
                 underline: under,
                 strikethrough: strike,
                 alignment: algn,
-                color: color
+                color
             });
         }
         Ok(())
@@ -341,8 +347,6 @@ impl TryFrom<&[u8]> for Translation {
     type Error = std::io::Error;
     fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
         let mut buf4 = [0u8; 4];
-        let mut buf2 = [0u8; 2];
-        let mut buf1 = [0u8; 1];
         let mut blank = Translation::new();
         let mut file = Cursor::new(data);
         file.read_exact(&mut buf4)?;
@@ -350,7 +354,7 @@ impl TryFrom<&[u8]> for Translation {
         if magic != LOCALIZATION_MAGIC_NUMBER {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Magic number was invalid: {}", magic),
+                format!("Magic number was invalid: {magic}"),
             ));
         }
         file.read_exact(&mut buf4)?;
@@ -360,12 +364,10 @@ impl TryFrom<&[u8]> for Translation {
             2 => Translation::from_v2(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Version was invalid: {}", version),
+                format!("Version was invalid: {version}"),
             )),
         };
-        if let Err(e) = res {
-            return Err(e);
-        }
+        res?;
 
         Ok(blank)
     }

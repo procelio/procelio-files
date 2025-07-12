@@ -9,3 +9,4 @@ mod build_stuff;
 pub mod patch;
 pub mod langbin;
 pub mod botmgmt;
+pub mod chatbroadcast;
