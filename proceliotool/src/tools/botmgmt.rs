@@ -31,7 +31,29 @@ fn display(count: &str, bot: &Robot) -> String {
     format!("{}{}{}{}", s1, name, std::iter::repeat(' ').take(41 - s1.len() - name.len() - ct.len()).collect::<String>(), ct)
 }
 
-pub fn tool(mut args: std::env::Args) {
+pub struct BotMgmtTool {
+
+}
+
+impl super::ProcelioCLITool for BotMgmtTool {
+    fn command(&self) -> &'static str {
+        "botmgmt"
+    }
+
+    fn usage(&self) {
+        println!("(--user [userID]) (--read [readToken]) (--write [writeToken]) (--autobuy)");
+        println!("    Procelio development bot manager tool");
+        println!("    - If on windows and have played the game, user+tokens login.session automatically)");
+        println!("    - autobuy disabled if flag not provided");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
+
+pub fn tool_impl(args: Vec<String>) {
     let mut user_id: i32 = 1;
     let mut read_token: String = "".to_owned();
     let mut write_token: String = "".to_owned();
@@ -54,15 +76,8 @@ pub fn tool(mut args: std::env::Args) {
             println!("Procelio session file {:?} not found", path);
         }
     }
+    let mut args = args.into_iter();
     while let Some(arg) = args.next() {
-        if arg == "--help" {
-            println!("--user [userID]");
-            println!("--read [readToken]");
-            println!("--write [writeToken]");
-            println!("(if on windows and have played the game, pulled from login.session automatically)");
-            println!("--autobuy: turn on autobuy");
-            return;
-        }
         if arg == "--user" {
             user_id = args.next().unwrap().parse().unwrap();
         } else if arg == "--read" {

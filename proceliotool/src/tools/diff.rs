@@ -5,6 +5,25 @@ use serde::{Serialize, Deserialize};
 use super::build_stuff::*;
 use md5::Digest;
 
+pub struct DiffTool {
+
+}
+
+impl super::ProcelioCLITool for DiffTool {
+    fn command(&self) -> &'static str {
+        "diff"
+    }
+
+    fn usage(&self) {
+        println!("diff path/to/from path/to/to [path/to/patch]");
+        println!("    Creates a patch from the 'from' directory to the 'to' directory");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeltaManifest {
     pub hashes: Vec<String>,
@@ -13,11 +32,6 @@ pub struct DeltaManifest {
     pub source: Version,
     #[serde(alias = "newExec")]
     pub new_exec: String
-}
-
-fn dump_usage() {
-    println!("diff path/to/from path/to/to [path/to/patch]");
-    println!("  Creates a patch from the 'from' directory to the 'to' directory");
 }
 
 pub fn diff_bytes(from: &[u8], to: &[u8]) -> Vec<u8> {
@@ -135,18 +149,10 @@ pub fn run_diff(from_root: &Path, to_root: &Path, patch_root: &Path,
     std::fs::write(patch_root.join("manifest.json"), manifest.as_bytes()).unwrap();
 }
 
-pub fn tool(mut args: std::env::Args) {
+fn tool_impl(args: Vec<String>) {
+    let mut args = args.into_iter();
     let from = args.next().unwrap_or("--help".to_owned());
-    if from == "--help" || from == "-h" {
-        dump_usage();
-        return;
-    }
     let to = args.next().unwrap_or("--help".to_owned());
-    if to == "--help" || to == "-h" {
-        dump_usage();
-        return;
-    }
-
     let src_path = Path::new(&from);
     let dst_path = Path::new(&to);
     if !fs::metadata(src_path).unwrap().is_dir() || !fs::metadata(dst_path).unwrap().is_dir() {

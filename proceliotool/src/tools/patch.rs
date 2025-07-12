@@ -6,6 +6,25 @@ use md5::Digest;
 use super::diff::DeltaManifest;
 use std::io::Read;
 
+pub struct PatchTool {
+
+}
+
+impl super::ProcelioCLITool for PatchTool {
+    fn command(&self) -> &'static str {
+        "patch"
+    }
+    
+    fn usage(&self) {
+      println!("path/to/files path/to/patch");
+      println!("    Applies patch in-place");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct InstallManifest {
   pub version: String,
@@ -138,10 +157,7 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
   Ok(())
 }
 
-fn dump_usage() {
-  println!("patch path/to/files path/to/patch");
-  println!("  Applies patch in-place");
-}
+
 
 pub fn from_dir(src_path: PathBuf, patch_path: PathBuf) {
   let manifest: DeltaManifest = serde_json::from_str(&std::fs::read_to_string(patch_path.join("manifest.json")).unwrap()).unwrap();
@@ -197,17 +213,10 @@ pub fn from_zip<'a, T: Seek + BufRead>(src_path: PathBuf, patch_data: &'a mut zi
   }
 }
 
-pub fn tool(mut args: std::env::Args) {
-  let from = args.next().unwrap_or("--help".to_owned());
-  if from == "--help" || from == "-h" {
-      dump_usage();
-      return;
-  }
-  let patsch = args.next().unwrap_or("--help".to_owned());
-  if patsch == "--help" || patsch == "-h" {
-      dump_usage();
-      return;
-  }
+fn tool_impl(args: Vec<String>) {
+  let mut args = args.into_iter();
+  let from = args.next().unwrap();
+  let patsch = args.next().unwrap();
 
   let src_path = Path::new(&from).canonicalize().unwrap();
   let patch_path = Path::new(&patsch).canonicalize().unwrap();

@@ -1,8 +1,22 @@
 use serde::Deserialize;
 
-fn chatbroadcast_usage() {
-    println!("broadcast MESSAGE ADMIN_TOKEN BROADCAST_TOKEN");
-    println!("  sends a broadcast message to all chat home servers");
+pub struct ChatBroadcastTool {
+
+}
+
+impl super::ProcelioCLITool for ChatBroadcastTool {
+    fn command(&self) -> &'static str {
+        "broadcast"
+    }
+
+    fn usage(&self) {
+        println!("MESSAGE ADMIN_TOKEN BROADCAST_TOKEN");
+        println!("    sends a broadcast message to all chat home servers");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
 }
 
 #[derive(Deserialize)]
@@ -16,16 +30,10 @@ struct LookupResponse {
     pub port: u32
 }
 
-pub fn tool(mut args: std::env::Args) {
-    let arg = args.next().unwrap_or("--help".to_owned());
-    if arg == "--help" || arg == "-h" || args.len() != 2 {
-        chatbroadcast_usage();
-        return;
-    }
-
-    let message = arg;
-    let admin_token = args.next().unwrap();
-    let broadcast_token = args.next().unwrap();
+fn tool_impl(args: Vec<String>) {
+    let message = &args[0];
+    let admin_token = &args[1];
+    let broadcast_token = &args[2];
 
     let client = reqwest::blocking::Client::new();
 
@@ -45,7 +53,7 @@ pub fn tool(mut args: std::env::Args) {
 
         println!("  with connection {}:{}", conn.connection[0], conn.port);
 
-        client.post(format!("https://{}:{}/admin/broadcast", conn.connection[0].replace("ws://", ""), conn.port))
+        client.post(format!("https://{}:{}/admin/broadcast", conn.connection[0].replace("wss://", "").replace("ws://", ""), conn.port))
             .body(message.clone())
             .bearer_auth(&broadcast_token)
             .send().unwrap();

@@ -1,45 +1,47 @@
-use proceliotool::tools;
-
-fn usage() {
-    println!("{} COMMAND ARGS", std::env::current_exe().unwrap_or(std::path::PathBuf::from("./program")).display());
-    println!("Commands: ");
-    println!("  statbin path/to/json [path/to/bin]: converts a json stat file to binary");
-    println!("  invbin path/to/json [path/to/bin]: converts a json inventory file to binary");
-    println!("  botbin path/to/json [path/to/bin]: converts a json robot file to binary");
-    println!("  lang path/to/folder: converts language data to binary file");
-    println!("  dump path/to/file: prints out the contents of a binary file in readable form");
-    println!("  reserialize path/to/file: update a file to the newest binary version of it");
-    println!("  diff path/to/from path/to/to: Creates a patch between these two game builds");
-    println!("  zip path/to/dir: Zip up a directory");
-    println!("  botmgmt: launch bot manager")
-}
+use proceliotool::tools::{self, ProcelioCLITool};
 
 fn main() {
     let mut args = std::env::args();
-    args.next(); // executable name, dispose
-    let tool = args.next();
-    if let None = tool {
-        usage();
+    let executable = args.next().unwrap(); // executable name, dispose
+    let tool = args.next().unwrap_or("--help".to_owned());
+
+    if tool == "version" {
+        println!("2025.7.12");
         return;
     }
-    let tool = tool.unwrap();
 
-    match tool.as_str() {
-        "version" => {println!("2025.2.18"); return;},
-        "help" => {usage(); return;},
-        "statbin" => tools::statbin::tool(args),
-        "invbin" => tools::invbin::tool(args),
-        "botbin" => tools::botbin::tool(args),
-        "dump" => tools::dump::tool(args),
-        "lang" => tools::langbin::tool(args),
-        "reserialize" => tools::reserialize::tool(args),
-        "diff" => tools::diff::tool(args),
-        "zip" => tools::zip::tool(args),
-        "patch" => tools::patch::tool(args),
-        "botmgmt" => tools::botmgmt::tool(args),
-        "broadcast" => tools::chatbroadcast::tool(args),
-        _ => {usage(); return;}
-    };
+    let tools: Vec<Box<dyn ProcelioCLITool>> = vec!(
+        Box::new(tools::botbin::BotBinTool {}),
+        Box::new(tools::invbin::InvBinTool {}),
+        Box::new(tools::langbin::LangBinTool {}),
+        Box::new(tools::statbin::StatBinTool {}),
+        Box::new(tools::botmgmt::BotMgmtTool {}),
+        Box::new(tools::diff::DiffTool {}),
+        Box::new(tools::dump::DumpTool {}),
+        Box::new(tools::zip::ZipTool {}),
+        Box::new(tools::patch::PatchTool {}),
+        Box::new(tools::reserialize::ReserializeTool {}),
+        Box::new(tools::chatbroadcast::ChatBroadcastTool {})
+    );
 
+    let matched = tools.iter().find(|&x| x.as_ref().command() == tool);
 
+    if let Some(x) = matched {
+        if std::env::args().any(|x| x == "--help" || x == "-h") {
+            print!("{} {} ", executable, tool);
+            x.as_ref().usage();
+        } else { 
+            x.tool(args.collect());
+        }
+        return;
+    }
+
+    // Usage
+    let printable = format!("{}", std::env::current_exe().unwrap_or(std::path::PathBuf::from("./proceliotool.exe")).display());
+    println!("{} commands:", printable);
+    for tool in tools {
+        print!("  {} ", tool.command());
+        tool.usage();
+        println!();
+    }
 }

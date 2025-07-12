@@ -5,17 +5,28 @@ use procelio_files::files::localization::localization::{self, TextElement};
 use std::collections::HashSet;
 use std::io::{Read, Write, BufRead};
 
-fn lang_usage() {
-    println!("lang path/to/language/folder [path/to/entries]");
-    println!("  creates a new language (if given folder is empty), OR converts JSON/PNG image data to a compiled language file");
+pub struct LangBinTool {
+
 }
 
-pub fn tool(mut args: std::env::Args) {
-    let arg = args.next().unwrap_or("--help".to_owned());
-    if arg == "--help" || arg == "-h" {
-        lang_usage();
-        return;
+impl super::ProcelioCLITool for LangBinTool {
+    fn command(&self) -> &'static str {
+        "lang"
     }
+
+    fn usage(&self) {
+        println!("path/to/language/folder [path/to/entries]");
+        println!("    creates a new language (if given folder is empty), OR converts JSON/PNG image data to a compiled language file");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
+fn tool_impl(args: Vec<String>) {
+    let mut args = args.into_iter();
+    let arg = args.next().unwrap();
     let config = args.next().unwrap_or("entries.txt".to_owned());
     let source = std::path::Path::new(&arg);
     let mut cfgrawpath = std::path::Path::new(&config).to_owned();

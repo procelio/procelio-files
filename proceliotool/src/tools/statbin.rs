@@ -1,20 +1,30 @@
 use procelio_files::files::stats::statfile;
 use std::io::{Read, Write};
 
-fn statbin_usage() {
-    println!("statbin path/to/json.json [path/to/bin]");
-    println!("  converts a json partstats file (at given path) to the binary representation");
-    println!("  if no path/to/bin is supplied, defaults to 'path/to/json.stats'");
-    println!("  either way, the resultant file is suitable for being served");
+pub struct StatBinTool {
+
 }
 
-pub fn tool(mut args: std::env::Args) {
-    let arg = args.next().unwrap_or("--help".to_owned());
-    if arg == "--help" || arg == "-h" {
-        statbin_usage();
-        return;
+impl super::ProcelioCLITool for StatBinTool {
+    fn command(&self) -> &'static str {
+        "statbin"
     }
 
+    fn usage(&self) {
+        println!("path/to/json.json [path/to/bin]");
+        println!("    converts a json partstats file (at given path) to the binary representation");
+        println!("    if no path/to/bin is supplied, defaults to 'path/to/json.stats'");
+        println!("    either way, the resultant file is suitable for being served");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
+fn tool_impl(args: Vec<String>) {
+    let mut args = args.into_iter();
+    let arg = args.next().unwrap();
     let source = std::path::Path::new(&arg);
     let dst = args.next();
     let destination = match dst {

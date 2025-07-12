@@ -2,9 +2,23 @@ use std::fs;
 use std::io::prelude::*;
 use zip::write::SimpleFileOptions;
 
-fn zip_usage() {
-    println!("zip path/to/folder");
-    println!("  Creates a zip of all the files in given folder");
+pub struct ZipTool {
+
+}
+
+impl super::ProcelioCLITool for ZipTool {
+    fn command(&self) -> &'static str {
+        "zip"
+    }
+
+    fn usage(&self) {
+        println!("path/to/folder");
+        println!("    Creates a zip of all the files in given folder");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
 }
 
 fn zip_recursive<T: Write + std::io::Seek> (
@@ -55,12 +69,9 @@ fn zip_dir<T: Write + Seek>(
     Result::Ok(())
 }
 
-pub fn tool(mut args: std::env::Args) {
+fn tool_impl(args: Vec<String>) {
+    let mut args = args.into_iter();
     let folder = args.next().unwrap_or("--help".to_owned());
-    if folder == "--help" || folder == "-h" {
-        zip_usage();
-        return;
-    }
 
     if !fs::metadata(&folder).unwrap().is_dir() {
         println!("Error: must be directory");
@@ -69,10 +80,6 @@ pub fn tool(mut args: std::env::Args) {
     let folder = std::path::PathBuf::from(folder);
     let mut path = folder.clone();
     let name = args.next().unwrap_or(path.file_name().unwrap().to_str().unwrap().to_string());
-    if name == "--help" || name == "-h" {
-        zip_usage();
-        return;
-    }
 
     path.set_file_name(format!("{}.zip", name));
     println!("H {:?}", &path);

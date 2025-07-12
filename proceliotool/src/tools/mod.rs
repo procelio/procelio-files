@@ -10,3 +10,11 @@ pub mod patch;
 pub mod langbin;
 pub mod botmgmt;
 pub mod chatbroadcast;
+
+pub trait ProcelioCLITool {
+    fn command(&self) -> &'static str;
+
+    fn usage(&self);
+
+    fn tool(&self, args: Vec<String>);
+}

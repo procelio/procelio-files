@@ -1,22 +1,32 @@
 use procelio_files::files::robot::robot;
 use std::io::{Read, Write};
 
-fn botbin_usage() {
-    println!("statbin path/to/json.json [path/to/bin]");
-    println!("  converts a json robot file (at given path) to the binary representation");
-    println!("  if no path/to/bin is supplied, defaults to 'path/to/json.robot'");
-    println!("  either way, the resultant file is suitable for being served");
+pub struct BotBinTool {
+
 }
 
-pub fn tool(mut args: std::env::Args) {
-    let arg = args.next().unwrap_or("--help".to_owned());
-    if arg == "--help" || arg == "-h" {
-        botbin_usage();
-        return;
+impl super::ProcelioCLITool for BotBinTool {
+    fn command(&self) -> &'static str {
+        "botbin"
     }
 
+    fn usage(&self) {
+        println!("path/to/json.json [path/to/bin]");
+        println!("    converts a json robot file (at given path) to the binary representation");
+        println!("    if no path/to/bin is supplied, defaults to 'path/to/json.robot'");
+        println!("    either way, the resultant file is suitable for being served");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
+
+fn tool_impl(args: Vec<String>) {
+    let arg = &args[0];
     let source = std::path::Path::new(&arg);
-    let dst = args.next();
+    let dst = args.get(1);
     let destination = match dst {
         None => source.with_extension("robot"),
         Some(e) => std::path::PathBuf::from(e)

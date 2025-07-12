@@ -3,17 +3,27 @@ use std::io::prelude::*;
 use std::io::Read;
 use std::convert::TryFrom;
 
-fn dump_usage() {
-    println!("dump path/to/file");
-    println!("  reads the given binary file and tries to print a JSON-deserialized form of it");
+pub struct DumpTool {
+
 }
 
-pub fn tool(mut args: std::env::Args) {
-    let file = args.next().unwrap_or("--help".to_owned());
-    if file == "--help" || file == "-h" {
-        dump_usage();
-        return;
+impl super::ProcelioCLITool for DumpTool {
+    fn command(&self) -> &'static str {
+        "dump"
     }
+
+    fn usage(&self) {
+        println!("path/to/file");
+        println!("    reads the given binary file and tries to print a JSON-deserialized form of it");
+    }
+
+    fn tool(&self, args: Vec<String>) {
+        tool_impl(args)
+    }
+}
+
+fn tool_impl(args: Vec<String>) {
+    let file = &args[0];
     let path = std::path::Path::new(&file);
     let file = std::fs::File::open(path);
     if let Err(e) = file {
