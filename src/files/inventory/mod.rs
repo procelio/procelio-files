@@ -1,1 +1,3 @@
-pub mod inventory;
+mod inventory;
+
+pub use inventory::*;

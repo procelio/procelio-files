@@ -65,7 +65,7 @@ fn tool_impl(args: Vec<String>) {
             match sf {
                 Err(e) => {println!("Unable to parse file: {}", e);},
                 Ok(s) => {
-                    match serde_json::to_string_pretty(&inventory::inventory::JsonInventory::from(s)) {
+                    match serde_json::to_string_pretty(&inventory::inventory::JsonInventory::from(&s)) {
                         Err(e2) => {println!("Unable to serialize: {}", e2);},
                         Ok(s2) => {println!("{}", s2);}
                     }

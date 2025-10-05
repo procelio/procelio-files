@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use fnv;
-use crate::files::robot::robot::Robot;
+use crate::files::robot::Robot;
 pub const INVENTORY_MAGIC_NUMBER: u32 = 0xC50CB115; // 15B10CC5 "IsBloccs"
 const CURRENT_VERSION: u32 = 3;
 
@@ -19,7 +19,7 @@ pub struct JsonPartCount {
     pub count: i32
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Inventory {
     pub parts: fnv::FnvHashMap<u32, i32>,
     pub cosmetics: fnv::FnvHashMap<u32, i32>
@@ -70,8 +70,8 @@ impl From<JsonInventory> for Inventory {
     }
 }
 
-impl From<Robot> for Inventory {
-    fn from(bot: Robot) -> Self {
+impl From<&Robot> for Inventory {
+    fn from(bot: &Robot) -> Self {
         let mut inv = Inventory::new();
         bot.parts.iter().for_each(|elem| {
             inv.add_part(elem.id, 1);
@@ -83,17 +83,17 @@ impl From<Robot> for Inventory {
     }
 }
 
-impl From<Inventory> for JsonInventory {
-    fn from(inv: Inventory) -> Self {
+impl From<&Inventory> for JsonInventory {
+    fn from(inv: &Inventory) -> Self {
         JsonInventory {
-            parts: inv.parts.into_iter().map(|x| JsonPartCount {
-                id: x.0,
-                count: x.1,
+            parts: inv.parts.iter().map(|x| JsonPartCount {
+                id: *x.0,
+                count: *x.1,
                 name: "?".to_owned()
             }).collect(),
-            cosmetics: inv.cosmetics.into_iter().map(|x| JsonPartCount {
-                id: x.0,
-                count: x.1,
+            cosmetics: inv.cosmetics.iter().map(|x| JsonPartCount {
+                id: *x.0,
+                count: *x.1,
                 name: "?".to_owned()
             }).collect()
         }

@@ -22,6 +22,7 @@ pub const SHIELD_CHARGE_RATE_FLAG: u8 = 10; // rate of hp/sec
 pub const SHIELD_CHARGE_DELAY_FLAG: u8 = 11; // millis after damage before start healing again
 pub const USABILITY_HEALTH: u8 = 12; // How much "usable" HP there is (e.g. tesla blade charges)
 pub const LIFT_FLAG: u8 = 13;
+pub const COSMETIC_COMPLEXITY_FLAG: u8 = 14;
 
 pub const SPECIAL_FLAG_0: u8 = 200; // Special per-part usage 0
 pub const SPECIAL_FLAG_1: u8 = 201; // Special per-part usage 1
@@ -146,6 +147,7 @@ fn flag_id(flag: &str) -> Option<u8> {
         "cost" => Some(COST_FLAG),
         "roboRanking" => Some(RANKING_FLAG),
         "cpuCost" => Some(COMPLEXITY_FLAG),
+        "cosmCmplx" => Some(COSMETIC_COMPLEXITY_FLAG),
         "thrust" => Some(THRUST_FLAG),
         "rotationSpeed" => Some(ROTATION_FLAG),
         "shield" => Some(SHIELD_FLAG),
@@ -216,6 +218,7 @@ fn flag_name(flag: u8) -> &'static str {
         COST_FLAG => "cost",
         RANKING_FLAG => "roboRanking",
         COMPLEXITY_FLAG => "cpuCost",
+        COSMETIC_COMPLEXITY_FLAG => "cosmCmplx",
         THRUST_FLAG => "thrust",
         ROTATION_FLAG => "rotationSpeed",
         SHIELD_FLAG => "shield",

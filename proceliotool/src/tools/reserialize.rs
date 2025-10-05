@@ -54,11 +54,11 @@ fn tool_impl(args: Vec<String>) {
                 }
             }
         },
-        inventory::inventory::INVENTORY_MAGIC_NUMBER => {
+        inventory::INVENTORY_MAGIC_NUMBER => {
             br.seek(std::io::SeekFrom::Start(0)).unwrap();
             let mut buf = std::vec::Vec::new();
             br.read_to_end(&mut buf).unwrap();
-            let sf = inventory::inventory::Inventory::try_from(buf.as_slice());
+            let sf = inventory::Inventory::try_from(buf.as_slice());
             match sf {
                 Err(e) => {println!("Unable to parse file: {}", e);},
                 Ok(s) => {
@@ -66,11 +66,11 @@ fn tool_impl(args: Vec<String>) {
                 }
             }
         },
-        robot::robot::ROBOT_MAGIC_NUMBER => {
+        robot::ROBOT_MAGIC_NUMBER => {
             br.seek(std::io::SeekFrom::Start(0)).unwrap();
             let mut buf = std::vec::Vec::new();
             br.read_to_end(&mut buf).unwrap();
-            let sf = robot::robot::Robot::try_from(buf.as_slice());
+            let sf = robot::Robot::try_from(buf.as_slice());
             match sf {
                 Err(e) => {println!("Unable to parse file: {}", e);},
                 Ok(s) => {

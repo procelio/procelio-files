@@ -1,1 +1,2 @@
-pub mod robot;
+mod robot;
+pub use robot::*;
