@@ -1,4 +1,4 @@
-use procelio_files::files::robot::robot;
+use procelio_files::files::robot;
 use std::io::{Read, Write};
 
 pub struct BotBinTool {

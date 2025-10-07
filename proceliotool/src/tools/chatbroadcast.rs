@@ -55,7 +55,7 @@ fn tool_impl(args: Vec<String>) {
 
         client.post(format!("https://{}:{}/admin/broadcast", conn.connection[0].replace("wss://", "").replace("ws://", ""), conn.port))
             .body(message.clone())
-            .bearer_auth(&broadcast_token)
+            .bearer_auth(broadcast_token)
             .send().unwrap();
         println!("  successfully!");
     }

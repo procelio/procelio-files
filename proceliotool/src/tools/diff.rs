@@ -132,7 +132,7 @@ pub fn run_diff(from_root: &Path, to_root: &Path, patch_root: &Path,
                 newpath.set_extension(format!("{}.patch", exists));
             },
             None => {
-                newpath.set_extension("patch".to_owned());
+                newpath.set_extension("patch");
             }
         }
         let dst_path = patch_root.join(&newpath);
@@ -171,7 +171,7 @@ fn tool_impl(args: Vec<String>) {
 
     let patch_dir = args.next().unwrap_or(format!("delta-{}", String::from(&patch)));
     let patch_dir = Path::new(&patch_dir);
-    fs::create_dir_all(&patch_dir).unwrap();
+    fs::create_dir_all(patch_dir).unwrap();
 
     let mut from_files = get_all_files_recursive(src_path);
     let mut to_files = get_all_files_recursive(dst_path);

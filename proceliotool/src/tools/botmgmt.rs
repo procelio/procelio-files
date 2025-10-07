@@ -1,6 +1,6 @@
 use std::io::{Read, Write, BufRead};
 use serde::{Serialize, Deserialize};
-use procelio_files::files::robot::robot::Robot;
+use procelio_files::files::robot::Robot;
 use std::convert::{TryFrom};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,7 +28,7 @@ fn display(count: &str, bot: &Robot) -> String {
         name.iter().collect::<String>()
     };
     let ct = format!("({}) ", bot.parts.len());
-    format!("{}{}{}{}", s1, name, std::iter::repeat(' ').take(41 - s1.len() - name.len() - ct.len()).collect::<String>(), ct)
+    format!("{}{}{}{}", s1, name, std::iter::repeat_n(' ', 41 - s1.len() - name.len() - ct.len()).collect::<String>(), ct)
 }
 
 pub struct BotMgmtTool {
@@ -138,7 +138,7 @@ pub fn tool_impl(args: Vec<String>) {
         println!("-----------------------------------------+-----------------------------------------");
         for i in 0..std::cmp::max(server_bots.len(), local_bots.len()) {
             if let Some(bot) = server_bots.get(i) {
-                print!("{}|", display(&format!("{}", i), &bot));
+                print!("{}|", display(&format!("{}", i), bot));
             } else {
                 print!("                                         |");
             }
@@ -150,10 +150,10 @@ pub fn tool_impl(args: Vec<String>) {
                     lbl = "A".to_owned();
                 }
                 while j != 0 {
-                    lbl = format!("{}{}", ('A' as u8 + (j % 26) as u8) as char, lbl);
+                    lbl = format!("{}{}", (b'A' + (j % 26) as u8) as char, lbl);
                     j /= 26;
                 }
-                print!("{}", display(&lbl, &bot));
+                print!("{}", display(&lbl, bot));
             }
             println!();
         }
@@ -164,11 +164,11 @@ pub fn tool_impl(args: Vec<String>) {
         println!("   | quit");
         print!("> "); std::io::stdout().flush().unwrap();
         let mut buf = String::new();
-        if let Err(_) = std::io::stdin().read_line(&mut buf) {
+        if std::io::stdin().read_line(&mut buf).is_err() {
             break;
         }
         buf = buf.trim().to_string();
-        let data: Vec<&str> = buf.split(' ').filter(|x| *x != "").collect();
+        let data: Vec<&str> = buf.split(' ').filter(|x| !x.is_empty()).collect();
 
         if buf == "quit" || buf == "exit" {
             break;
@@ -221,7 +221,7 @@ pub fn tool_impl(args: Vec<String>) {
                 let mut i: i32 = 0;
                 for c in st.chars().rev() {
                     i *= 26;
-                    i += (c as u8 - 'A' as u8) as i32;
+                    i += (c as u8 - b'A') as i32;
                 }
                 if i < 0 || i as usize > local_bots.len() {
                     println!("Bad count {}", i);

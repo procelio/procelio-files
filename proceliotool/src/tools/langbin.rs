@@ -69,7 +69,7 @@ fn tool_impl(args: Vec<String>) {
             let r: f32 = x as f32 * 255.0 / (imgsize.0 as f32);
             let g: f32 = y as f32 * 255.0 / (imgsize.1 as f32);
             let b: f32 =(x + y) as f32 * 255.0 / ((imgsize.0 + imgsize.1) as f32);
-            *pixel = image::Rgba([r as u8, g as u8, b as u8, 255 as u8]);
+            *pixel = image::Rgba([r as u8, g as u8, b as u8, 255_u8]);
         }
         let save = img.save(source.join("image.png"));
         if let Err(e) = save {
@@ -126,7 +126,7 @@ fn tool_impl(args: Vec<String>) {
 
     let existing: HashSet<String> = translate.language_elements.iter().map(|x|x.name.to_owned()).collect();
     let elen = entries.len();
-    if elen != existing.iter().count() || elen != entries.union(&existing).into_iter().count()
+    if elen != existing.len() || elen != entries.union(&existing).count()
     {
         let ff1 = std::fs::File::create(source.join("language.json"));
         if ff1.is_err() {

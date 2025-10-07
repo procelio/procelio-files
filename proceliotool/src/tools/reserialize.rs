@@ -78,6 +78,6 @@ fn tool_impl(args: Vec<String>) {
                 }
             }
         },
-        _ => { println!("Invalid filetype! Only supports [stats, inventory, robot]"); return;}
+        _ => { println!("Invalid filetype! Only supports [stats, inventory, robot]");}
     }
 }

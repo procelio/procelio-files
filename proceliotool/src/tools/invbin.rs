@@ -1,4 +1,4 @@
-use procelio_files::files::inventory::inventory::*;
+use procelio_files::files::inventory::*;
 use std::io::{Read, Write};
 
 pub struct InvBinTool {

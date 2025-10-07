@@ -45,13 +45,12 @@ pub fn check_rollback(dir: &std::path::PathBuf) -> Result<(), anyhow::Error> {
   let rollback = std::fs::read_to_string(&tmpflag)?;
 
   let mut to_rename = Vec::new();
-  for entry in walkdir::WalkDir::new(&dir) {
+  for entry in walkdir::WalkDir::new(dir) {
       let entry = entry?;
-      if let Some(x) = entry.path().extension().and_then(|x|x.to_str()) {
-          if x.ends_with(&rollback) {
+      if let Some(x) = entry.path().extension().and_then(|x|x.to_str())
+          && x.ends_with(&rollback) {
               to_rename.push(entry.path().to_owned());
           }
-      }
   }
 
   for entry in to_rename {
@@ -118,7 +117,7 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
   }
 
   if let Some(callback) = cb {
-    callback(1., format!("Consolidating"));
+    callback(1., "Consolidating".to_string());
   }
 
   for elem in manifest.delete {
@@ -147,7 +146,7 @@ pub fn patch(manifest: DeltaManifest, root_path: &std::path::PathBuf, rollback: 
   let n = to_del.len();
   for path in to_del {
     if let Some(callback) = cb {
-      callback((i as f32) / (n as f32), format!("Cleaning Up"));
+      callback((i as f32) / (n as f32), "Cleaning Up".to_string());
     }
     std::fs::remove_file(path)?;
     i += 1;
@@ -163,8 +162,7 @@ pub fn from_dir(src_path: PathBuf, patch_path: PathBuf) {
   let manifest: DeltaManifest = serde_json::from_str(&std::fs::read_to_string(patch_path.join("manifest.json")).unwrap()).unwrap();
 
   let iter = walkdir::WalkDir::new(&patch_path).into_iter()
-    .filter(|x| x.is_ok())
-    .map(|x|x.unwrap())
+    .flatten()
     .filter(|x|!x.path().ends_with("manifest.json"))
     .filter(|x|!x.path().is_dir())
     .map(|x| {
@@ -176,7 +174,7 @@ pub fn from_dir(src_path: PathBuf, patch_path: PathBuf) {
 }
 
 use std::io::{Seek, BufRead};
-pub fn from_zip<'a, T: Seek + BufRead>(src_path: PathBuf, patch_data: &'a mut zip::ZipArchive<T>, cb: Option<&dyn Fn(f32, String)>) -> Result<(), anyhow::Error> {
+pub fn from_zip<T: Seek + BufRead>(src_path: PathBuf, patch_data: &mut zip::ZipArchive<T>, cb: Option<&dyn Fn(f32, String)>) -> Result<(), anyhow::Error> {
   let count = patch_data.len();
   if count == 0 {
     return Err(anyhow::Error::msg("EMPTY ZIP"));
@@ -188,21 +186,16 @@ pub fn from_zip<'a, T: Seek + BufRead>(src_path: PathBuf, patch_data: &'a mut zi
     serde_json::from_slice(&curs.into_inner()).map_err(|_|anyhow::Error::msg("Invalid zip manifest format"))?
   };
 
-  let iter = (1..count).map(|x| {
+  let iter = (1..count).filter_map(|x| {
     let mut d = patch_data.by_index(x).unwrap();
     if d.is_file() {
       let mut v: Vec<u8> = Vec::new();
       d.read_to_end(&mut v).unwrap();
-      if let Some(s) = d.enclosed_name() {
-        Some((src_path.join(s), v))
-      } else {
-        None
-      }
+      d.enclosed_name().map(|s| (src_path.join(s), v))
     } else {
       None
     }
-  }).filter(|x|x.is_some())
-  .map(|x|x.unwrap());
+  });
   let err_count = 0;
 
   println!("{:?}", patch(manifest, &src_path, "ROLLBACK".to_owned(), iter, cb)?);
