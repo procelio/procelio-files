@@ -6,7 +6,7 @@ fn main() {
     let tool = args.next().unwrap_or("--help".to_owned());
 
     if tool == "version" {
-        println!("2025.7.12");
+        println!("2025.10.10");
         return;
     }
 
@@ -15,6 +15,7 @@ fn main() {
         Box::new(tools::invbin::InvBinTool {}),
         Box::new(tools::langbin::LangBinTool {}),
         Box::new(tools::statbin::StatBinTool {}),
+        Box::new(tools::techbin::TechBinTool {}),
         Box::new(tools::botmgmt::BotMgmtTool {}),
         Box::new(tools::diff::DiffTool {}),
         Box::new(tools::dump::DumpTool {}),
@@ -39,6 +40,7 @@ fn main() {
     // Usage
     let printable = format!("{}", std::env::current_exe().unwrap_or(std::path::PathBuf::from("./proceliotool.exe")).display());
     println!("{} commands:", printable);
+    println!("  version");
     for tool in tools {
         print!("  {} ", tool.command());
         tool.usage();

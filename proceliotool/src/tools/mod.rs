@@ -8,6 +8,7 @@ pub mod zip;
 mod build_stuff;
 pub mod patch;
 pub mod langbin;
+pub mod techbin;
 pub mod botmgmt;
 pub mod chatbroadcast;
 

@@ -3,3 +3,4 @@ pub mod launcher;
 pub mod inventory;
 pub mod robot;
 pub mod localization;
+pub mod tech;
