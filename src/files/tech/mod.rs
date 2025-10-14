@@ -35,7 +35,7 @@ pub struct Rewards {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct TechID(i64);
+pub struct TechID(pub i64);
 
 impl TechID {
     pub fn new(id: i64) -> Self { Self(id) }
