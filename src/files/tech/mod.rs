@@ -47,6 +47,7 @@ pub struct TechItem {
     pub name: String,
     pub cost: i64,
     pub prerequisite_tech: Vec<TechID>,
+    #[serde(default)]
     pub prereqs_and: bool,
     pub reward: Rewards
 }
@@ -65,21 +66,6 @@ impl TechItem {
 pub struct TechTree {
     pub nodes: Vec<TechItem>
 }
-
-/*
-{ "nodes": [
-  { 
-    "id": 1,
-    "name": idk",
-    "cost": 10000,
-    "prerequisite_tech": [],
-    "reward": { "currency_award": 30000 }
-  }
-
-
-]}
-
-*/
 
 impl TechTree {
     fn compile_reward(file: &mut Cursor<Vec<u8>>, reward: &Rewards)-> Result<(), std::io::Error> {
@@ -115,13 +101,11 @@ impl TechTree {
             file.write_all(&u32::to_be_bytes(*p))?;
         }
 
-        file.write_all(&u8::to_be_bytes(reward.garage_slots))?;
-
-        file.write_all(&u8::to_be_bytes(reward.prefab_bots.len() as u8))?;
-
         file.write_all(&u32::to_be_bytes(reward.currency_award))?;
         file.write_all(&u32::to_be_bytes(reward.premium_currency_award))?;
 
+        file.write_all(&u8::to_be_bytes(reward.garage_slots))?;
+        file.write_all(&u8::to_be_bytes(reward.prefab_bots.len() as u8))?;
         for p in &reward.prefab_bots {
             file.write_all(&u32::to_be_bytes(*p))?;
         }
