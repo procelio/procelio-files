@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 use fnv::FnvHashMap;
 use std::convert::TryFrom;
@@ -6,7 +6,7 @@ use std::io::{Cursor, Read, Write};
 use serde::ser::{Serializer, SerializeMap};
 
 pub const STATFILE_MAGIC_NUMBER: u32 = 0x1EF1A757; // 57A7F11E "statfile"
-const CURRENT_VERSION: u32 = 3;
+const CURRENT_VERSION: u32 = 4;
 
 pub const HEALTH_FLAG: u8 = 0;
 pub const MASS_FLAG: u8 = 1;
@@ -66,7 +66,7 @@ impl Serialize for FlagStats {
     where
         S: Serializer,
     {
-        let mut m2 = std::collections::BTreeMap::new();
+        let mut m2: std::collections::BTreeMap<&u32, HashMap<&str, &i32>> = std::collections::BTreeMap::new();
         for (k, v) in &self.data {
             let mut mm = HashMap::new();
             for (k2, v2) in v {
@@ -80,6 +80,28 @@ impl Serialize for FlagStats {
             map.serialize_entry(&k.to_string(), &v)?;
         }
         map.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for FlagStats {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let m: std::collections::BTreeMap<u32, HashMap<String, i32>> = std::collections::BTreeMap::deserialize(deserializer)?;
+        let mut data: FnvHashMap<u32, FnvHashMap<u8, i32>> = FnvHashMap::default();
+        
+        for (key, v) in m {           
+            let mut inner_map = FnvHashMap::default();
+            for (k2_str, v2) in v {
+                let k2 = flag_id(&k2_str).ok_or_else(|| serde::de::Error::custom("Invalid flag name"))?;
+                inner_map.insert(k2, v2);
+            }
+            
+            data.insert(key, inner_map);
+        }
+        
+        Ok(FlagStats { data })
     }
 }
 
@@ -271,10 +293,12 @@ impl TryFrom<&[u8]> for StatsFile {
 
         file.read_exact(&mut buf4)?;
         let version = u32::from_be_bytes(buf4);
+        println!("version: {:?}", version);
         let res: Result<(), std::io::Error> = match version {
             1 => StatsFile::from_v1(&mut blank, &mut file),
             2 => StatsFile::from_v2(&mut blank, &mut file),
             3 => StatsFile::from_v3(&mut blank, &mut file),
+            4 => StatsFile::from_v4(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Version was invalid: {version}"),
@@ -353,13 +377,14 @@ impl StatsFile {
         Ok(())
     }
 
-    fn from_v2(stats: &mut StatsFile, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+    fn load_flags_vec(file: &mut Cursor<&[u8]>) -> Result<Vec<(u32, FnvHashMap<u8, i32>)>, std::io::Error> {
+
         let mut buf4 = [0u8; 4];
         let mut buf1 = [0u8; 1];
+        let mut results = Vec::new();
 
-        file.read_exact(&mut buf4)?;
-        let num_blocks = u32::from_be_bytes(buf4);
-        for _ in 0..num_blocks {
+        let num_entity = u32::from_be_bytes(buf4);
+        for _ in 0..num_entity {
             file.read_exact(&mut buf4)?;
             let entity_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
@@ -372,26 +397,22 @@ impl StatsFile {
                 let value = i32::from_be_bytes(buf4);
                 map.insert(flag, value);
             }
-            stats.blocks.data.insert(entity_id, map);
+            results.push((entity_id, map));
         }
 
-        file.read_exact(&mut buf4)?;
-        let num_attacks = u32::from_be_bytes(buf4);
-        for _ in 0..num_attacks {
-            file.read_exact(&mut buf4)?;
-            let entity_id = u32::from_be_bytes(buf4);
-            file.read_exact(&mut buf1)?;
-            let num_flags = u8::from_be_bytes(buf1);
-            let mut map = FnvHashMap::default();
-            for _ in 0..num_flags {
-                file.read_exact(&mut buf1)?;
-                let flag = u8::from_be_bytes(buf1);
-                file.read_exact(&mut buf4)?;
-                let value = i32::from_be_bytes(buf4);
-                map.insert(flag, value);
-            }
-            stats.attacks.data.insert(entity_id, map);
-        }
+        Ok(results)
+    }
+
+    fn load_flags(flag: &mut FlagStats, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+
+        StatsFile::load_flags_vec(file)?.into_iter().for_each(|x| { flag.data.insert(x.0, x.1); });
+        Ok(())
+    }
+
+    fn from_v2(stats: &mut StatsFile, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+
+        StatsFile::load_flags(&mut stats.blocks, file)?;
+        StatsFile::load_flags(&mut stats.attacks, file)?;
 
         Ok(())
     }
@@ -409,7 +430,7 @@ impl StatsFile {
             let cosm_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
             let data_len = u8::from_be_bytes(buf1);
-
+println!("data: {:?} for {:?}", data_len, cosm_id);
             let mut m = FnvHashMap::default();
 
             if data_len >= 8 {
@@ -431,6 +452,25 @@ impl StatsFile {
             stats.cosmetics_bin.data.insert(cosm_id, n);
         }
 
+        Ok(())
+    }
+
+    fn from_v4(stats: &mut StatsFile, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+        let mut buf1 = [0u8; 1];
+
+        StatsFile::from_v2(stats, file)?;
+
+        let cosmetics = StatsFile::load_flags_vec(file)?;
+
+        for c in cosmetics.into_iter() {
+            file.read_exact(&mut buf1)?;
+            let data_len = u8::from_be_bytes(buf1);
+            let mut n = vec![0; data_len as usize];
+            file.read_exact(&mut n)?;
+
+            stats.cosmetics.data.insert(c.0, c.1);
+            stats.cosmetics_bin.data.insert(c.0, n);
+        }
         Ok(())
     }
 
@@ -470,6 +510,16 @@ impl StatsFile {
         Ok(())
     }
 
+    fn compile_cosm_v4(stat: &FlagStats, stat_bin: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
+        StatsFile::compile_sub_flag(stat, file)?;
+        for kvp in &stat_bin.data {
+            file.write_all(&u8::to_be_bytes((kvp.1.len()) as u8))?;
+            file.write_all(kvp.1)?;
+        }
+
+        Ok(())
+    }
+
     pub fn compile(self: &StatsFile) -> Result<Vec<u8>, std::io::Error> {
         let mut file = Cursor::new(Vec::new());
         file.write_all(&u32::to_be_bytes(STATFILE_MAGIC_NUMBER))?; // "57A7F11E" STATFILE magic number
@@ -477,7 +527,7 @@ impl StatsFile {
 
         StatsFile::compile_sub_flag(&self.blocks, &mut file)?;
         StatsFile::compile_sub_flag(&self.attacks, &mut file)?;
-        StatsFile::compile_cosm_v3(&self.cosmetics, &self.cosmetics_bin, &mut file)?;
+        StatsFile::compile_cosm_v4(&self.cosmetics, &self.cosmetics_bin, &mut file)?;
         Ok(file.into_inner())
     }
 }

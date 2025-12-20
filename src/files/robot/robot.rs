@@ -62,17 +62,6 @@ pub struct Cosmetic {
     pub extra_bytes: Vec<u8>
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
-pub struct RobotMetadataInfo {
-    pub name: String,
-    pub cpu: i32,
-    pub ranking: i32,
-    pub mass: i32,
-    pub cost: i32,
-    pub primary_weapon: u32,
-    pub secondary_weapon: u32
-}
-
 impl TryFrom<&[u8]> for Robot {
     type Error = std::io::Error;
     fn try_from(data: &[u8]) -> Result<Self, Self::Error> {
