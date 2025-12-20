@@ -48,7 +48,7 @@ pub const SPECIAL_FLAG_19: u8 = 219; // Special per-part usage 19
 pub const MODIFIER_COST: u8 = 250;
 pub const MODIFIER_PREMIUM_COST: u8 = 251;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct StatsFile {
     pub blocks: FlagStats,
     pub attacks: FlagStats,
@@ -94,10 +94,10 @@ impl<'de> Deserialize<'de> for FlagStats {
         for (key, v) in m {           
             let mut inner_map = FnvHashMap::default();
             for (k2_str, v2) in v {
-                let k2 = flag_id(&k2_str).ok_or_else(|| serde::de::Error::custom("Invalid flag name"))?;
+                let k2 = flag_id(&k2_str).ok_or_else(|| serde::de::Error::custom(format!("Invalid flag name {k2_str}")))?;
                 inner_map.insert(k2, v2);
             }
-            
+
             data.insert(key, inner_map);
         }
         
@@ -113,7 +113,7 @@ impl FlagStats {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct BinaryConfig {
     pub data: FnvHashMap<u32, Vec<u8>>
 }
@@ -185,43 +185,43 @@ fn flag_id(flag: &str) -> Option<u8> {
             if x.starts_with("spec") { // I know it's bad
                 if x.starts_with("spec0") {
                     Some(SPECIAL_FLAG_0)
-                } else if x.starts_with("spec1_") {
+                } else if x.starts_with("spec1_") || x == "spec1" {
                     Some(SPECIAL_FLAG_1)
-                } else if x.starts_with("spec2_") {
+                } else if x.starts_with("spec2_") || x == "spec2" {
                     Some(SPECIAL_FLAG_2)
-                } else if x.starts_with("spec3_") {
+                } else if x.starts_with("spec3_") || x == "spec3" {
                     Some(SPECIAL_FLAG_3)
-                } else if x.starts_with("spec4_") {
+                } else if x.starts_with("spec4_") || x == "spec4" {
                     Some(SPECIAL_FLAG_4)
-                } else if x.starts_with("spec5_") {
+                } else if x.starts_with("spec5_") || x == "spec5" {
                     Some(SPECIAL_FLAG_5)
-                } else if x.starts_with("spec6_") {
+                } else if x.starts_with("spec6_") || x == "spec6" {
                     Some(SPECIAL_FLAG_6)
-                } else if x.starts_with("spec7_") {
+                } else if x.starts_with("spec7_") || x == "spec7" {
                     Some(SPECIAL_FLAG_7)
-                } else if x.starts_with("spec8_") {
+                } else if x.starts_with("spec8_") || x == "spec8" {
                     Some(SPECIAL_FLAG_8)
-                } else if x.starts_with("spec9_") {
+                } else if x.starts_with("spec9_") || x == "spec9" {
                     Some(SPECIAL_FLAG_9)
-                } else if x.starts_with("spec10_") {
+                } else if x.starts_with("spec10_") || x == "spec10" {
                     Some(SPECIAL_FLAG_10)
-                } else if x.starts_with("spec11_") {
+                } else if x.starts_with("spec11_") || x == "spec11" {
                     Some(SPECIAL_FLAG_11)
-                } else if x.starts_with("spec12_") {
+                } else if x.starts_with("spec12_") || x == "spec12" {
                     Some(SPECIAL_FLAG_12)
-                } else if x.starts_with("spec13_") {
+                } else if x.starts_with("spec13_") || x == "spec13" {
                     Some(SPECIAL_FLAG_13)
-                } else if x.starts_with("spec14_") {
+                } else if x.starts_with("spec14_") || x == "spec14" {
                     Some(SPECIAL_FLAG_14)
-                } else if x.starts_with("spec15_") {
+                } else if x.starts_with("spec15_") || x == "spec15" {
                     Some(SPECIAL_FLAG_15)
-                } else if x.starts_with("spec16_") {
+                } else if x.starts_with("spec16_") || x == "spec16" {
                     Some(SPECIAL_FLAG_16)
-                } else if x.starts_with("spec17_") {
+                } else if x.starts_with("spec17_") || x == "spec17" {
                     Some(SPECIAL_FLAG_17)
-                } else if x.starts_with("spec18_") {
+                } else if x.starts_with("spec18_") || x == "spec18" {
                     Some(SPECIAL_FLAG_18)
-                } else if x.starts_with("spec19_") {
+                } else if x.starts_with("spec19_") || x == "spec19" {
                     Some(SPECIAL_FLAG_19)
                 } else {
                     None
