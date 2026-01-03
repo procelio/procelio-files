@@ -382,7 +382,7 @@ impl StatsFile {
         let mut buf4 = [0u8; 4];
         let mut buf1 = [0u8; 1];
         let mut results = Vec::new();
-
+        file.read_exact(&mut buf4)?;
         let num_entity = u32::from_be_bytes(buf4);
         for _ in 0..num_entity {
             file.read_exact(&mut buf4)?;
@@ -464,11 +464,13 @@ println!("data: {:?} for {:?}", data_len, cosm_id);
         for c in cosmetics.into_iter() {
             file.read_exact(&mut buf1)?;
             let data_len = u8::from_be_bytes(buf1);
-            let mut n = vec![0; data_len as usize];
-            file.read_exact(&mut n)?;
 
             stats.cosmetics.data.insert(c.0, c.1);
-            stats.cosmetics_bin.data.insert(c.0, n);
+            if data_len > 0 {
+                let mut n = vec![0; data_len as usize];
+                file.read_exact(&mut n)?;
+                stats.cosmetics_bin.data.insert(c.0, n);
+            }
         }
         Ok(())
     }
