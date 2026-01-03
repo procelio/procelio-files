@@ -441,15 +441,14 @@ println!("data: {:?} for {:?}", data_len, cosm_id);
 
                 m.insert(MODIFIER_COST, cost);
                 m.insert(MODIFIER_PREMIUM_COST, prem_cost);
+                let mut n = vec![0; data_len as usize - 8];
+                file.read_exact(&mut n)?;
+                stats.cosmetics_bin.data.insert(cosm_id, n);
             } else {
                 m.insert(MODIFIER_COST, 0);
                 m.insert(MODIFIER_PREMIUM_COST, 0);
             }
             stats.cosmetics.data.insert(cosm_id, m);
-
-            let mut n = vec![0; data_len as usize - 8];
-            file.read_exact(&mut n)?;
-            stats.cosmetics_bin.data.insert(cosm_id, n);
         }
 
         Ok(())
