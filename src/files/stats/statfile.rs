@@ -293,7 +293,7 @@ impl TryFrom<&[u8]> for StatsFile {
 
         file.read_exact(&mut buf4)?;
         let version = u32::from_be_bytes(buf4);
-        println!("version: {:?}", version);
+
         let res: Result<(), std::io::Error> = match version {
             1 => StatsFile::from_v1(&mut blank, &mut file),
             2 => StatsFile::from_v2(&mut blank, &mut file),
@@ -430,7 +430,7 @@ impl StatsFile {
             let cosm_id = u32::from_be_bytes(buf4);
             file.read_exact(&mut buf1)?;
             let data_len = u8::from_be_bytes(buf1);
-println!("data: {:?} for {:?}", data_len, cosm_id);
+
             let mut m = FnvHashMap::default();
 
             if data_len >= 8 {
