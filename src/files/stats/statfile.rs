@@ -498,18 +498,18 @@ impl StatsFile {
         Ok(())
     }
 
-    fn compile_cosm_v3(stat: &FlagStats, stat_bin: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
-        file.write_all(&u32::to_be_bytes(stat_bin.data.len() as u32))?;
-        for kvp in &stat_bin.data {
-            file.write_all(&u32::to_be_bytes(*kvp.0))?;
-            file.write_all(&u8::to_be_bytes((kvp.1.len() + 8) as u8))?;
-            file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_COST]))?;
-            file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_PREMIUM_COST]))?;
-            file.write_all(kvp.1)?;
-        }
+    // fn compile_cosm_v3(stat: &FlagStats, stat_bin: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
+    //     file.write_all(&u32::to_be_bytes(stat_bin.data.len() as u32))?;
+    //     for kvp in &stat_bin.data {
+    //         file.write_all(&u32::to_be_bytes(*kvp.0))?;
+    //         file.write_all(&u8::to_be_bytes((kvp.1.len() + 8) as u8))?;
+    //         file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_COST]))?;
+    //         file.write_all(&i32::to_be_bytes(stat.data[kvp.0][&MODIFIER_PREMIUM_COST]))?;
+    //         file.write_all(kvp.1)?;
+    //     }
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     fn compile_cosm_v4(stat: &FlagStats, stat_bin: &BinaryConfig, file: &mut Cursor<Vec<u8>>) -> Result<(), std::io::Error> {
         StatsFile::compile_sub_flag(stat, file)?;
