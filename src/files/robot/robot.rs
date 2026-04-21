@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use std::io::Seek;
 use md5::{Md5, Digest};
 
 pub const ROBOT_MAGIC_NUMBER: u32 = 0xC571B040; // 40B071C5 "Robotics"
-const CURRENT_VERSION: u32 = 3;
+const CURRENT_VERSION: u32 = 4;
 pub const MAX_EXTRADATA_SIZE: u8 = 64;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsonRobot {
@@ -38,6 +39,7 @@ pub struct Robot {
     pub bot_name: Vec<u8>,
     pub parts: Vec<Part>,
     pub cosmetics: Vec<Cosmetic>,
+    pub input_rewire: HashMap<u8, u8>,
     pub hash: Option<Vec<u8>>
 }
 
@@ -83,6 +85,7 @@ impl TryFrom<&[u8]> for Robot {
             1 => Robot::from_v1(&mut blank, &mut file),
             2 => Robot::from_v2(&mut blank, &mut file),
             3 => Robot::from_v3(&mut blank, &mut file),
+            4 => Robot::from_v4(&mut blank, &mut file),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 format!("Version was invalid: {version}"),
@@ -262,12 +265,30 @@ impl Robot {
         Ok(())
     }
 
+    fn from_v4(bot: &mut Robot, file: &mut Cursor<&[u8]>) -> Result<(), std::io::Error> {
+        Robot::from_v3(bot, file)?;
+        let mut buf1 = [0u8; 1];
+        
+        file.read_exact(&mut buf1)?;
+        let len = buf1[0];
+        for i in 0..len {
+            file.read_exact(&mut buf1)?;
+            let key = buf1[0];
+            file.read_exact(&mut buf1)?;
+            let val = buf1[0];
+            bot.input_rewire.insert(key, val);
+        }
+
+        Ok(())
+    }
+
     pub fn new() -> Robot {
         Robot {
             metadata: 0u64,
             bot_name: "robot".to_owned().into_bytes(),
             parts: Vec::new(),
             cosmetics: Vec::new(),
+            input_rewire: HashMap::new(),
             hash: None
         }
     }
@@ -310,6 +331,11 @@ impl Robot {
             }
             file.write_all(&u8::to_be_bytes(elem.extra_bytes.len() as u8))?;
             file.write_all(&elem.extra_bytes)?;
+        }
+        file.write_all(&u8::to_be_bytes(self.input_rewire.len() as u8))?;
+        for elem in self.input_rewire.iter() {
+            file.write_all(&u8::to_be_bytes(*elem.0))?;
+            file.write_all(&u8::to_be_bytes(*elem.1))?;
         }
 
         let mut md5hash = Md5::new();
