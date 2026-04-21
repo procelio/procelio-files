@@ -271,7 +271,7 @@ impl Robot {
         
         file.read_exact(&mut buf1)?;
         let len = buf1[0];
-        for i in 0..len {
+        for _ in 0..len {
             file.read_exact(&mut buf1)?;
             let key = buf1[0];
             file.read_exact(&mut buf1)?;
