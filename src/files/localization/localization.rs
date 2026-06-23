@@ -107,6 +107,15 @@ impl Translation {
         file.write_all(&u16::to_be_bytes(value.len() as u16))?;
         file.write_all(value)?;
 
+        if let Some(x) = &text.color {
+            file.write_all(&u8::to_be_bytes(1))?;
+            file.write_all(&u8::to_be_bytes(x.color.0))?;
+            file.write_all(&u8::to_be_bytes(x.color.1))?;
+            file.write_all(&u8::to_be_bytes(x.color.2))?;
+        } else {
+            file.write_all(&u8::to_be_bytes(0))?;
+        }
+
         file.write_all(&u16::to_be_bytes(text.size))?;
         let mut modifications : u8 = 0;
         if text.bold {
@@ -123,15 +132,6 @@ impl Translation {
         }
         file.write_all(&u8::to_be_bytes(modifications))?;
         file.write_all(&u8::to_be_bytes(text.alignment))?;
-        if let Some(x) = &text.color {
-            file.write_all(&u8::to_be_bytes(1))?;
-            file.write_all(&u8::to_be_bytes(x.color.0))?;
-            file.write_all(&u8::to_be_bytes(x.color.1))?;
-            file.write_all(&u8::to_be_bytes(x.color.2))?;
-        } else {
-            file.write_all(&u8::to_be_bytes(0))?;
-        }
-
         Ok(())
     }
 
