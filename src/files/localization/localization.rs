@@ -302,6 +302,7 @@ impl Translation {
             file.read_exact(&mut bufname)?;
             let value = String::from_utf8(bufname).unwrap();
 
+            file.read_exact(&mut buf1)?;
             let color = if buf1[0] == 1 {
                 file.read_exact(&mut buf1)?;
                 let r = buf1[0];
@@ -323,7 +324,6 @@ impl Translation {
             let strike = (buf1[0] & 0x8) > 0;
             file.read_exact(&mut buf1)?;
             let algn = buf1[0];
-            file.read_exact(&mut buf1)?;
 
 
             translate.language_elements.push(TextElement {
